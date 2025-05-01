@@ -1,0 +1,88 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🧠 React Project Architecture Prompt (FSD + Vite + CSR)
+
+Build a **React + TypeScript** project using **Feature-Sliced Design (FSD)** with **Vite** and **client-side rendering (CSR)**.  
+Use **TailwindCSS** and **shadcn/ui**, and follow the structure and conventions below.
+
+---
+
+## 📁 `src/` Structure
+
+```
+src/
+├── app/         # App-level config (routing, layout, theme, providers)
+├── pages/       # Optional route mapping (if needed)
+├── processes/   # High-level business flows
+├── widgets/     # Layout blocks (e.g., Header, Sidebar)
+├── features/    # Functional units (e.g., LoginForm)
+├── entities/    # Domain logic and models (e.g., User)
+├── shared/      # Global UI, utilities, types (no business logic)
+└── index.tsx
+```
+
+---
+
+## 🧩 Slice Structure (`features/`, `entities/`, `widgets/`, `processes/`)
+
+```
+[slice-name]/
+├── model/     # State, effects, selectors
+├── ui/        # UI components
+├── lib/       # Logic & helpers
+├── api/       # API requests
+├── config/    # Constants
+├── types/     # Local types (optional)
+└── index.ts   # Public entry point
+```
+
+---
+
+## ⚖️ File Routing Rules
+
+- UI or user interaction → `features/`
+- Business data/logic → `entities/`
+- Visual layout → `widgets/`
+- Flow coordination → `processes/`
+- Global/reusable → `shared/`
+
+---
+
+## 🚫 Do Not
+
+- ❌ Import one feature/entity into another
+- ❌ Put logic in `shared/`
+- ❌ Place business logic inside widgets
+- ❌ Overuse `useState` for complex state
+
+---
+
+## 🎨 shadcn/ui Rules
+
+- Wrap primitives in `shared/ui/primitives/`
+- Create abstractions (e.g. `Modal`) in `shared/ui/`
+- Never import directly from `@/components/ui` in features/entities
+
+---
+
+## ✅ Usage Examples
+
+- “Create a `login` feature with form in `ui/` and state in `model/`.”
+- “Define `User` entity with types and Avatar in `ui/`.”
+- “Wrap shadcn `Dialog` into `shared/ui/primitives/Dialog.tsx` and expose `Modal`.”
+
+---
+
+## 📌 Summary
+
+Follow FSD strictly:  
+- **`entities` = domain logic**  
+- **`features` = interaction logic**  
+- **`widgets` = composition blocks**  
+- **`processes` = business flows**  
+- **`shared` = global utilities**
+
+Use this as the default prompt for any code scaffolding or structure generation.
