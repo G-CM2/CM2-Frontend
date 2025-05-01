@@ -6,7 +6,8 @@ alwaysApply: true
 # 🧠 React Project Architecture Prompt (FSD + Vite + CSR)
 
 Build a **React + TypeScript** project using **Feature-Sliced Design (FSD)** with **Vite** and **client-side rendering (CSR)**.  
-Use **TailwindCSS** and **shadcn/ui**, and follow the structure and conventions below.
+Use **TailwindCSS** and **shadcn/ui**, and follow the structure and conventions below.  
+All modules must follow the **ECMAScript Modules (ESM)** standard — use `import/export` syntax only.
 
 ---
 
@@ -17,9 +18,9 @@ src/
 ├── app/         # App-level config (routing, layout, theme, providers)
 ├── pages/       # Optional route mapping (if needed)
 ├── processes/   # High-level business flows
-├── widgets/     # Layout blocks (e.g., Header, Sidebar)
-├── features/    # Functional units (e.g., LoginForm)
-├── entities/    # Domain logic and models (e.g., User)
+├── widgets/     # Layout blocks (e.g., header, sidebar)
+├── features/    # Functional units (e.g., login-form)
+├── entities/    # Domain logic and models (e.g., user)
 ├── shared/      # Global UI, utilities, types (no business logic)
 └── index.tsx
 ```
@@ -51,38 +52,69 @@ src/
 
 ---
 
+## 🔤 File Naming Conventions
+
+- **Use `kebab-case` for all file and folder names**, including components, hooks, utilities, and API modules.
+- Examples:
+  - `login-form.tsx`, `use-user-profile.ts`, `fetch-user.ts`, `user-card.tsx`
+- Types should be named `types.ts` inside the appropriate folder.
+- Each slice must expose a public interface via an `index.ts`.
+
+---
+
+## 📘 README.md Usage Rules
+
+- Every **domain slice** and **top-level folder** must include a `README.md`.
+- The README must explain:
+  - The **purpose** of the folder or slice
+  - The **responsibility boundaries**
+  - Any **naming conventions**, architectural patterns, or edge cases used
+  - **Change history** or **design decisions** made in the folder
+- When creating or modifying a folder, **Cursor must update the README** with clear explanations of:
+  - What was added/changed and why
+  - How it fits the overall structure
+  - How it should be used or extended
+
+---
+
 ## 🚫 Do Not
 
 - ❌ Import one feature/entity into another
 - ❌ Put logic in `shared/`
 - ❌ Place business logic inside widgets
 - ❌ Overuse `useState` for complex state
+- ❌ Use CommonJS (`require`, `module.exports`) — always use ES modules
 
 ---
 
 ## 🎨 shadcn/ui Rules
 
 - Wrap primitives in `shared/ui/primitives/`
-- Create abstractions (e.g. `Modal`) in `shared/ui/`
+- Create abstractions (e.g. `modal`, `alert-dialog`) in `shared/ui/`
 - Never import directly from `@/components/ui` in features/entities
 
 ---
 
 ## ✅ Usage Examples
 
-- “Create a `login` feature with form in `ui/` and state in `model/`.”
-- “Define `User` entity with types and Avatar in `ui/`.”
-- “Wrap shadcn `Dialog` into `shared/ui/primitives/Dialog.tsx` and expose `Modal`.”
+- “Create a `login` feature with form in `ui/login-form.tsx` and state in `model/store.ts`.”
+- “Define `user` entity with `types.ts` and `avatar.tsx` in `ui/`.”
+- “Wrap shadcn’s `dialog` into `shared/ui/primitives/dialog.tsx` and expose `modal.tsx` abstraction.”
+- “Add a README explaining the folder structure and boundaries of `widgets/sidebar/`.”
 
 ---
 
 ## 📌 Summary
 
-Follow FSD strictly:  
-- **`entities` = domain logic**  
-- **`features` = interaction logic**  
-- **`widgets` = composition blocks**  
-- **`processes` = business flows**  
-- **`shared` = global utilities**
+- Follow **FSD** strictly:
+  - `entities` = domain logic  
+  - `features` = interaction logic  
+  - `widgets` = composition blocks  
+  - `processes` = business flows  
+  - `shared` = global utilities
 
-Use this as the default prompt for any code scaffolding or structure generation.
+- Use **`kebab-case`** for all filenames and folders  
+- Use **ES modules** exclusively (`import` / `export`)  
+- Document every architectural or structural change in a `README.md`
+
+Use this as the **default prompt for all code scaffolding, structure generation, and documentation automation**.
