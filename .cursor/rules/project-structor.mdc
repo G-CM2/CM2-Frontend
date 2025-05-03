@@ -5,9 +5,9 @@ alwaysApply: true
 ---
 # 🧠 React Project Architecture Prompt (FSD + Vite + CSR)
 
-Build a **React + TypeScript + Tanstack query** project using **Feature-Sliced Design (FSD)** with **Vite** and **client-side rendering (CSR)**.  
+Build a **React + TypeScript + Tanstack Query** project using **Feature-Sliced Design (FSD)** with **Vite** and **Client-Side Rendering (CSR)**.  
 Use **TailwindCSS** and **shadcn/ui**, and follow the structure and conventions below.  
-All modules must follow the **ECMAScript Modules (ESM)** standard — use `import/export` syntax only.
+All modules must follow the **ECMAScript Modules (ESM)** standard — use only `import/export`.
 
 ---
 
@@ -16,7 +16,7 @@ All modules must follow the **ECMAScript Modules (ESM)** standard — use `impor
 ```
 src/
 ├── app/         # App-level config (routing, layout, theme, providers)
-├── pages/       # Optional route mapping (if needed)
+├── pages/       # Optional route mapping
 ├── processes/   # High-level business flows
 ├── widgets/     # Layout blocks (e.g., header, sidebar)
 ├── features/    # Functional units (e.g., login-form)
@@ -52,28 +52,35 @@ src/
 
 ---
 
-## 🔤 File Naming Conventions
+## 🔤 Naming Conventions
 
 - **Use `kebab-case` for all file and folder names**, including components, hooks, utilities, and API modules.
 - Examples:
   - `login-form.tsx`, `use-user-profile.ts`, `fetch-user.ts`, `user-card.tsx`
 - Types should be named `types.ts` inside the appropriate folder.
-- Each slice must expose a public interface via an `index.ts`.
+- Each slice must expose a public interface via `index.ts`.
+
+### 🧱 Component File Extension Rules
+
+- **Use `.tsx` for all components that include JSX**.
+- **If a component does not include JSX**, you may use `.ts` instead (e.g., for purely functional logic or styled-component wrappers).
+- Example:
+  - `user-card.tsx` (contains JSX)
+  - `create-theme.ts` (pure function returning config object or class)
 
 ---
 
-## 📘 README.md Usage Rules
+## 📘 README.md Guidelines
 
-- Every **domain slice** and **top-level folder** must include a `README.md`.
+- Every **top-level folder** and **domain slice** must include a `README.md`.
 - The README must explain:
   - The **purpose** of the folder or slice
   - The **responsibility boundaries**
   - Any **naming conventions**, architectural patterns, or edge cases used
-  - **Change history** or **design decisions** made in the folder
-- When creating or modifying a folder, **Cursor must update the README** with clear explanations of:
-  - What was added/changed and why
-  - How it fits the overall structure
-  - How it should be used or extended
+  - **What should be included** in the folder and **how to extend** it
+
+> ✅ When a file is added or modified in a folder, the `README.md` must be **updated to reflect the latest structure and purpose of the file**.  
+> You **do not need to log historical changes** — only the current structure and rationale should be documented.
 
 ---
 
@@ -83,7 +90,7 @@ src/
 - ❌ Put logic in `shared/`
 - ❌ Place business logic inside widgets
 - ❌ Overuse `useState` for complex state
-- ❌ Use CommonJS (`require`, `module.exports`) — always use ES modules
+- ❌ Use CommonJS (`require`, `module.exports`) — always use ES Modules
 
 ---
 
@@ -100,7 +107,7 @@ src/
 - “Create a `login` feature with form in `ui/login-form.tsx` and state in `model/store.ts`.”
 - “Define `user` entity with `types.ts` and `avatar.tsx` in `ui/`.”
 - “Wrap shadcn’s `dialog` into `shared/ui/primitives/dialog.tsx` and expose `modal.tsx` abstraction.”
-- “Add a README explaining the folder structure and boundaries of `widgets/sidebar/`.”
+- “Add a README that explains the structure and responsibility of `widgets/sidebar/`.”
 
 ---
 
@@ -114,7 +121,6 @@ src/
   - `shared` = global utilities
 
 - Use **`kebab-case`** for all filenames and folders  
-- Use **ES modules** exclusively (`import` / `export`)  
-- Document every architectural or structural change in a `README.md`
-
-Use this as the **default prompt for all code scaffolding, structure generation, and documentation automation**.
+- Use **ES Modules** only (`import` / `export`)  
+- **Keep the `README.md` up to date** with the latest folder structure and purpose  
+- **Use `.tsx` for JSX components; use `.ts` if the file contains no JSX**

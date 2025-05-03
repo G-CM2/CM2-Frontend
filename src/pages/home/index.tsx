@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/widgets/layout';
 import { StatsOverview } from '@/widgets/stats-overview';
 import { ContainerGrid } from '@/widgets/container-grid';
@@ -18,9 +19,12 @@ export const HomePage = () => {
             placeholder="컨테이너 검색..."
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800"
           />
-          <button className="bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700">
+          <Link 
+            to="/containers" 
+            className="bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700"
+          >
             새 컨테이너
-          </button>
+          </Link>
         </div>
       </div>
       

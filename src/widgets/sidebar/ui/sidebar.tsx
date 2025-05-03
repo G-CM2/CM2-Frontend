@@ -1,14 +1,28 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export const Sidebar = () => {
+  const location = useLocation();
+  const { pathname } = location;
+
+  const isActive = (path: string) => {
+    if (path === '/' && pathname === '/') return true;
+    if (path !== '/' && pathname.startsWith(path)) return true;
+    return false;
+  };
+
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 h-full shadow-md">
       <nav className="px-4 py-4">
         <ul className="space-y-2">
           <li>
-            <a 
-              href="#" 
-              className="flex items-center space-x-2 p-2 rounded-md bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300"
+            <Link 
+              to="/" 
+              className={`flex items-center space-x-2 p-2 rounded-md ${
+                isActive('/') 
+                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
             >
               <svg 
                 className="w-5 h-5" 
@@ -25,12 +39,16 @@ export const Sidebar = () => {
                 />
               </svg>
               <span>대시보드</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a 
-              href="#" 
-              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            <Link
+              to="/containers" 
+              className={`flex items-center space-x-2 p-2 rounded-md ${
+                isActive('/containers') 
+                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
             >
               <svg 
                 className="w-5 h-5" 
@@ -47,12 +65,16 @@ export const Sidebar = () => {
                 />
               </svg>
               <span>컨테이너</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a 
-              href="#" 
-              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            <Link
+              to="/images" 
+              className={`flex items-center space-x-2 p-2 rounded-md ${
+                isActive('/images') 
+                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
             >
               <svg 
                 className="w-5 h-5" 
@@ -69,12 +91,16 @@ export const Sidebar = () => {
                 />
               </svg>
               <span>이미지</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a 
-              href="#" 
-              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            <Link
+              to="/monitoring" 
+              className={`flex items-center space-x-2 p-2 rounded-md ${
+                isActive('/monitoring') 
+                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
             >
               <svg 
                 className="w-5 h-5" 
@@ -91,12 +117,16 @@ export const Sidebar = () => {
                 />
               </svg>
               <span>모니터링</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a 
-              href="#" 
-              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            <Link
+              to="/scaling" 
+              className={`flex items-center space-x-2 p-2 rounded-md ${
+                isActive('/scaling') 
+                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
             >
               <svg 
                 className="w-5 h-5" 
@@ -118,8 +148,8 @@ export const Sidebar = () => {
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" 
                 />
               </svg>
-              <span>설정</span>
-            </a>
+              <span>스케일링</span>
+            </Link>
           </li>
         </ul>
       </nav>

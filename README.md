@@ -9,6 +9,7 @@ Docker 컨테이너 모니터링 및 관리를 위한 웹 대시보드입니다.
 - **Vite**: 빌드 도구
 - **TailwindCSS**: CSS 프레임워크
 - **Tanstack Query**: 서버 상태 관리 및 데이터 페칭
+- **React Router DOM**: 클라이언트 사이드 라우팅
 
 ## 주요 기능
 
@@ -25,12 +26,44 @@ Docker 컨테이너 모니터링 및 관리를 위한 웹 대시보드입니다.
 ```
 src/
 ├── app/         # 앱 수준 설정 (라우팅, 레이아웃, 테마, 프로바이더)
+│   ├── providers/  # 앱 전역 프로바이더 설정
+│   │   └── query-provider.tsx  # Tanstack Query 프로바이더
+│   └── App.tsx    # 루트 앱 컴포넌트
 ├── pages/       # 페이지 구성
+│   ├── home/    # 홈 페이지(대시보드)
+│   ├── containers/  # 컨테이너 관련 페이지
+│   └── scaling/  # 스케일링 정책 관련 페이지
 ├── widgets/     # 레이아웃 블록 (헤더, 사이드바 등)
-├── features/    # 기능 단위 (로그인 폼 등)
-├── entities/    # 도메인 로직 및 모델 (사용자 등)
-├── shared/      # 전역 UI, 유틸리티, 타입 (비즈니스 로직 없음)
+│   ├── header/  # 헤더 컴포넌트
+│   ├── sidebar/  # 사이드바 내비게이션
+│   ├── layout/  # 페이지 레이아웃 구조
+│   ├── container-grid/  # 컨테이너 그리드 위젯
+│   └── stats-overview/  # 통계 개요 위젯
+├── features/    # 기능 단위
+│   ├── container-actions/  # 컨테이너 액션 관련 기능
+│   └── scaling-policy/  # 스케일링 정책 관련 기능 
+├── entities/    # 도메인 로직 및 모델
+│   ├── container/  # 컨테이너 관련 도메인 로직
+│   └── system/  # 시스템 정보 관련 도메인 로직
+├── shared/      # 전역 UI, 유틸리티, 타입
+│   ├── api/  # API 클라이언트 및 유틸리티
+│   ├── ui/  # UI 기본 컴포넌트
+│   ├── lib/  # 유틸리티 함수
+│   └── types/  # 공통 타입 정의
+└── processes/   # 높은 수준의 비즈니스 프로세스
 ```
+
+## 주요 파일 및 역할
+
+- **src/main.tsx**: 애플리케이션 진입점
+- **src/app/App.tsx**: 루트 애플리케이션 컴포넌트
+- **src/app/providers/query-provider.tsx**: Tanstack Query 설정
+- **src/widgets/layout/ui/layout.tsx**: 메인 레이아웃 구조
+- **src/widgets/sidebar/ui/sidebar.tsx**: 사이드바 내비게이션 컴포넌트
+- **src/widgets/header/ui/header.tsx**: 상단 헤더 컴포넌트
+- **package.json**: 프로젝트 의존성 및 스크립트
+- **vite.config.ts**: Vite 빌드 도구 설정
+- **tailwind.config.js**: Tailwind CSS 설정
 
 ## API 통신
 

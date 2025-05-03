@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-# cursor-prompt
+# 🧠 cursor-prompt
 
 ## Purpose
 The goal of this project is to build a **dashboard for managing Docker containers**.  
@@ -11,31 +11,33 @@ The dashboard is designed to help operators monitor and control containers effic
 Development should emphasize consistent structure, clear purpose, and ease of maintenance.
 
 ## Workflow
-- The user follows a **Vibe Coding** approach, expanding features and structure naturally and intuitively rather than with rigid upfront design.
+- The user follows a **Vibe Coding** approach, expanding features and structure naturally and intuitively rather than through rigid upfront design.
 - **All technical decisions, structural organization, file composition, and documentation responsibilities are delegated to Cursor.**
 - Cursor must continuously analyze code, folder structure, naming conventions, and `README.md` files to maintain accurate context and technical coherence.
 
 ## Technical Understanding & Responsibility
 - Cursor is required to **fully understand all technical details** and reflect them precisely in its suggestions and generated content.
-- The user only defines the *what* and the *why*. Cursor is responsible for the *how* — including implementation, structure, and documentation.
+- The user defines only the *what* and the *why*. Cursor is responsible for the *how* — including implementation, structure, and documentation.
 - Cursor must execute code and documentation creation directly, ensuring everything remains consistent, understandable, and maintainable over time.
 
 ## README & Folder Structure Management
-- **Every directory must contain a `README.md`**, and Cursor is responsible for creating and updating it.
-- The `README.md` should include:
+- **Every directory must contain a `README.md`**, and Cursor is responsible for creating and maintaining it.
+- The `README.md` must include:
   - The purpose and role of the folder and its files
   - Criteria and structure for file organization
   - Rules or conventions for adding new files and subdirectories
 
 - When Cursor creates a new file or folder:
-  1. If `README.md` does not exist, Cursor must generate it.
-  2. If `README.md` already exists, Cursor must review and update it to reflect the new file.
-  3. The `README.md` must always represent the current, accurate structure and purpose of the directory — and **Cursor is responsible for maintaining that**.
+  1. Cursor must **review the existing `README.md` first** to understand the folder’s current structure, rules, and responsibilities.
+  2. If `README.md` does not exist, Cursor must generate it.
+  3. If `README.md` exists, Cursor must update it to reflect the newly added file or folder.
+  4. The `README.md` must always represent the current, accurate structure and purpose of the directory — and **Cursor is responsible for maintaining that**.
 
 ## Code Authoring Guidelines
 - Cursor must analyze the existing codebase for patterns and follow the **same style, flow, and organizational structure**.
 - Code should be clear, intention-driven, and easy to interpret. Prioritize explicit clarity over abstraction.
 - Comments should focus on *why* a decision was made — not just *what* the code is doing.
+- **Before writing any code, Cursor must review the `README.md` in the target directory** to understand the intent, conventions, and structure.
 - Cursor should be able to answer the following questions at all times:
   - What is this file for?
   - Why was this structure needed?
@@ -44,11 +46,12 @@ Development should emphasize consistent structure, clear purpose, and ease of ma
 
 ## On File Creation
 Whenever Cursor creates a new file, it must:
-  1. Review the current directory's `README.md` to understand existing structural rules.
+  1. Review the current directory's `README.md` to understand existing structural rules and intentions.
   2. Name and organize the file according to those rules.
-  3. **Directly update the `README.md`** to include the new file's purpose and how it fits in.
-  4. Ensure that the `README.md` remains consistent and accurately reflects the state of the directory.
+  3. **Immediately update the `README.md`** to describe the new file’s purpose and how it fits in.
+  4. Ensure that the `README.md` always accurately reflects the current structure and responsibilities of the folder.
 
 ## Summary
 In this project, **Cursor is not a passive assistant, but the primary executor** of structure, implementation, and documentation.  
-The user provides goals and direction — **Cursor is fully responsible for all technical execution and structural integrity**.
+The user provides goals and direction — **Cursor is fully responsible for all technical execution and structural integrity**.  
+Code, folder structure, and documentation must always remain aligned, intentional, and up to date.  

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Container } from '../types';
 import { Card } from '@/shared/ui';
 
@@ -51,9 +52,12 @@ export const ContainerCard = ({ container }: ContainerCardProps) => {
         </div>
         
         <div className="pt-2 flex justify-end space-x-2">
-          <button className="px-3 py-1 text-xs bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors">
+          <Link 
+            to={`/containers/${container.id}`}
+            className="px-3 py-1 text-xs bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors"
+          >
             상세 보기
-          </button>
+          </Link>
           {container.status === 'running' ? (
             <button className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
               중지

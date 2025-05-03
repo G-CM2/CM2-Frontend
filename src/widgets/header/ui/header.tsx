@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const Header = () => {
   return (
     <header className="bg-indigo-600 text-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2 hover:text-indigo-200 transition-colors">
           <svg 
             className="w-8 h-8" 
             viewBox="0 0 24 24" 
@@ -20,9 +21,9 @@ export const Header = () => {
             />
           </svg>
           <h1 className="text-xl font-bold">Docker 컨테이너 관리</h1>
-        </div>
+        </Link>
         <div className="flex items-center space-x-4">
-          <button className="hover:text-indigo-200 transition-colors">
+          <Link to="/containers" className="hover:text-indigo-200 transition-colors" title="새 컨테이너">
             <svg 
               className="w-6 h-6" 
               fill="none" 
@@ -37,7 +38,7 @@ export const Header = () => {
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
               />
             </svg>
-          </button>
+          </Link>
           <button className="hover:text-indigo-200 transition-colors">
             <svg 
               className="w-6 h-6" 
