@@ -10,7 +10,6 @@ api/
 ├── containers.ts    # 컨테이너 관련 API
 ├── scaling.ts       # 스케일링 정책 관련 API
 ├── system.ts        # 시스템 및 대시보드 관련 API
-├── timeline.ts      # 타임라인 관련 API
 ├── hooks/           # React Query 훅
 └── mock/            # MSW를 사용한 API 모킹
 ```
@@ -32,10 +31,6 @@ API는 다음과 같은 도메인으로 분리되어 있습니다:
 ### 3. 시스템 (system.ts)
 - 시스템 요약 정보 (CPU, 메모리, 디스크 사용량 등)
 - 대시보드 요약 정보
-
-### 4. 타임라인 (timeline.ts)
-- 컨테이너 이벤트 타임라인
-- 컨테이너 리소스 사용량 타임라인
 
 ## 사용 방법
 
@@ -78,9 +73,6 @@ import {
   useUpdateScalingPolicy, // 스케일링 정책 수정
   useDeleteScalingPolicy  // 스케일링 정책 삭제
 } from '@/shared/api';
-
-// 타임라인 관련 훅
-import { useContainerTimeline } from '@/shared/api';
 ```
 
 ## 모킹
@@ -104,9 +96,4 @@ import { useContainerTimeline } from '@/shared/api';
 
 ### system.ts
 - `SystemSummary` - 시스템 요약 정보 인터페이스
-- `DashboardSummary` - 대시보드 요약 정보 인터페이스
-
-### timeline.ts
-- `TimelineItem` - 타임라인 항목 인터페이스
-- `TimelineDatapoint` - 타임라인 데이터 포인트 인터페이스
-- `ContainerTimelineResponse` - 컨테이너 타임라인 응답 인터페이스 
+- `DashboardSummary` - 대시보드 요약 정보 인터페이스 

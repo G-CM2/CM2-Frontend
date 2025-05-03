@@ -1,156 +1,118 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Container } from '@/entities/container/types';
-import { containersApi, ContainerActionResponse, ContainerActionRequest } from '../containers';
-import { timelineApi } from '../timeline';
+import { containersApi, ContainerActionRequest } from '../containers';
 
 export const QUERY_KEYS = {
   containers: 'containers',
-  container: 'container',
-  timeline: 'timeline'
+  container: 'container'
 };
 
 /**
  * 컨테이너 목록을 조회하는 훅
  */
-export const useContainers = () => {
+export const useContainers = (page: number = 1, limit: number = 20, refreshInterval?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.containers],
-    queryFn: async () => {
-      const result = await containersApi.getContainers();
-      return result.containers;
-    },
+    queryKey: [QUERY_KEYS.containers, page, limit],
+    queryFn: () => containersApi.getContainers(page, limit),
+    refetchInterval: refreshInterval
   });
 };
 
 /**
- * 특정 컨테이너 정보를 조회하는 훅
+ * 특정 컨테이너의 상세 정보를 조회하는 훅
  */
-export const useContainer = (containerId: string) => {
+export const useContainer = (id: string, refreshInterval?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.container, containerId],
-    queryFn: async () => {
-      return await containersApi.getContainer(containerId);
-    },
-    enabled: !!containerId,
+    queryKey: [QUERY_KEYS.container, id],
+    queryFn: () => containersApi.getContainer(id),
+    enabled: !!id,
+    refetchInterval: refreshInterval
   });
 };
 
 /**
- * 컨테이너 타임라인을 조회하는 훅
- */
-export const useContainerTimeline = (containerId: string, refreshInterval?: number) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.timeline, containerId],
-    queryFn: async () => {
-      return await timelineApi.getContainerEventTimeline(containerId);
-    },
-    enabled: !!containerId,
-    refetchInterval: refreshInterval,
-  });
-};
-
-/**
- * 컨테이너 액션을 수행하는 범용 훅
+ * 범용 컨테이너 액션 처리를 위한 훅
  */
 export const useContainerAction = () => {
   const queryClient = useQueryClient();
   
-  return useMutation<
-    ContainerActionResponse, 
-    Error, 
-    { containerId: string; action: ContainerActionRequest }
-  >({
-    mutationFn: async ({ containerId, action }) => {
-      return await containersApi.performContainerAction(containerId, action);
+  return useMutation({
+    mutationFn: ({ containerId, action }: { containerId: string; action: string }) => {
+      return containersApi.performContainerAction(containerId, { action } as ContainerActionRequest);
     },
-    onSuccess: (_, { containerId }) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
+    onSuccess: (_data, variables) => {
+      // 액션이 성공하면 컨테이너 정보를 다시 조회
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, variables.containerId] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
+    }
   });
 };
 
 /**
- * 컨테이너 시작 액션 훅
+ * 컨테이너 시작 훅
  */
 export const useStartContainer = () => {
-  const queryClient = useQueryClient();
+  const containerAction = useContainerAction();
   
-  return useMutation<ContainerActionResponse, Error, string>({
-    mutationFn: async (containerId) => {
-      return await containersApi.startContainer(containerId);
-    },
-    onSuccess: (_, containerId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
-  });
+  return {
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'start' }),
+    isLoading: containerAction.isPending,
+    isError: containerAction.isError,
+    error: containerAction.error
+  };
 };
 
 /**
- * 컨테이너 중지 액션 훅
+ * 컨테이너 중지 훅
  */
 export const useStopContainer = () => {
-  const queryClient = useQueryClient();
+  const containerAction = useContainerAction();
   
-  return useMutation<ContainerActionResponse, Error, string>({
-    mutationFn: async (containerId) => {
-      return await containersApi.stopContainer(containerId);
-    },
-    onSuccess: (_, containerId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
-  });
+  return {
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'stop' }),
+    isLoading: containerAction.isPending,
+    isError: containerAction.isError,
+    error: containerAction.error
+  };
 };
 
 /**
- * 컨테이너 재시작 액션 훅
+ * 컨테이너 재시작 훅
  */
 export const useRestartContainer = () => {
-  const queryClient = useQueryClient();
+  const containerAction = useContainerAction();
   
-  return useMutation<ContainerActionResponse, Error, string>({
-    mutationFn: async (containerId) => {
-      return await containersApi.restartContainer(containerId);
-    },
-    onSuccess: (_, containerId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
-  });
+  return {
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'restart' }),
+    isLoading: containerAction.isPending,
+    isError: containerAction.isError,
+    error: containerAction.error
+  };
 };
 
 /**
- * 컨테이너 일시중지 액션 훅
+ * 컨테이너 일시 중지 훅
  */
 export const usePauseContainer = () => {
-  const queryClient = useQueryClient();
+  const containerAction = useContainerAction();
   
-  return useMutation<ContainerActionResponse, Error, string>({
-    mutationFn: async (containerId) => {
-      return await containersApi.performContainerAction(containerId, { action: 'pause' });
-    },
-    onSuccess: (_, containerId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
-  });
+  return {
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'pause' }),
+    isLoading: containerAction.isPending,
+    isError: containerAction.isError,
+    error: containerAction.error
+  };
 };
 
 /**
- * 컨테이너 일시중지 해제 액션 훅
+ * 컨테이너 일시 중지 해제 훅
  */
 export const useUnpauseContainer = () => {
-  const queryClient = useQueryClient();
+  const containerAction = useContainerAction();
   
-  return useMutation<ContainerActionResponse, Error, string>({
-    mutationFn: async (containerId) => {
-      return await containersApi.performContainerAction(containerId, { action: 'unpause' });
-    },
-    onSuccess: (_, containerId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.container, containerId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.containers] });
-    },
-  });
+  return {
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'unpause' }),
+    isLoading: containerAction.isPending,
+    isError: containerAction.isError,
+    error: containerAction.error
+  };
 }; 

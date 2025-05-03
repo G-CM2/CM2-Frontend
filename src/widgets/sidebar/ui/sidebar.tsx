@@ -17,9 +17,9 @@ export const Sidebar = () => {
         <ul className="space-y-2">
           <li>
             <Link 
-              to="/" 
+              to="/dashboard" 
               className={`flex items-center space-x-2 p-2 rounded-md ${
-                isActive('/') 
+                isActive('/dashboard') || pathname === '/'
                   ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
                   : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
@@ -65,58 +65,6 @@ export const Sidebar = () => {
                 />
               </svg>
               <span>컨테이너</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/images" 
-              className={`flex items-center space-x-2 p-2 rounded-md ${
-                isActive('/images') 
-                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <svg 
-                className="w-5 h-5" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
-                />
-              </svg>
-              <span>이미지</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/monitoring" 
-              className={`flex items-center space-x-2 p-2 rounded-md ${
-                isActive('/monitoring') 
-                  ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <svg 
-                className="w-5 h-5" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
-                />
-              </svg>
-              <span>모니터링</span>
             </Link>
           </li>
           <li>
