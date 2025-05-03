@@ -357,7 +357,7 @@ export const handlers = [
   }),
 
   // GET /images - 이미지 목록 조회
-  http.get('/api/images', ({ request }) => {
+  http.get(`${API_URL}/images`, ({ request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
@@ -375,7 +375,7 @@ export const handlers = [
   }),
   
   // GET /images/:id - 이미지 상세 정보 조회
-  http.get('/api/images/:id', ({ params }) => {
+  http.get(`${API_URL}/images/:id`, ({ params }) => {
     const { id } = params;
     const image = mockImages.find(img => img.id === id);
     
@@ -390,7 +390,7 @@ export const handlers = [
   }),
   
   // DELETE /images/:id - 이미지 삭제
-  http.delete('/api/images/:id', ({ params }) => {
+  http.delete(`${API_URL}/images/:id`, ({ params }) => {
     const { id } = params;
     const imageIndex = mockImages.findIndex(img => img.id === id);
     
@@ -410,7 +410,7 @@ export const handlers = [
   }),
   
   // POST /images/pull - 이미지 풀
-  http.post('/api/images/pull', async ({ request }) => {
+  http.post(`${API_URL}/images/pull`, async ({ request }) => {
     const data = await request.json() as { repository: string, tag?: string };
     const { repository, tag } = data;
     
