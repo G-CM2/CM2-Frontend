@@ -4,23 +4,12 @@ import { Link } from 'react-router-dom';
 export const Header = () => {
   return (
     <header className="bg-indigo-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center space-x-2 hover:text-indigo-200 transition-colors">
-          <svg 
-            className="w-8 h-8" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path 
-              d="M21 9V3H15M15 21H21V15M3 15V21H9M9 3H3V9" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-          <h1 className="text-xl font-bold">Docker 컨테이너 관리</h1>
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="flex items-center space-x-3 hover:text-indigo-200 transition-colors">
+          <div className="bg-white p-1.5 rounded-full shadow-sm">
+            <img src="/logo.svg" alt="CM2 로고" className="w-10 h-10" />
+          </div>
+          <h1 className="text-xl font-extrabold tracking-wide text-white drop-shadow-sm">CM2</h1>
         </Link>
       </div>
     </header>
