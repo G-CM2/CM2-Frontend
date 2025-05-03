@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 # 🧠 React Project Architecture Prompt (FSD + Vite + CSR)
 
-Build a **React + TypeScript** project using **Feature-Sliced Design (FSD)** with **Vite** and **client-side rendering (CSR)**.  
+Build a **React + TypeScript + Tanstack query** project using **Feature-Sliced Design (FSD)** with **Vite** and **client-side rendering (CSR)**.  
 Use **TailwindCSS** and **shadcn/ui**, and follow the structure and conventions below.  
 All modules must follow the **ECMAScript Modules (ESM)** standard — use `import/export` syntax only.
 

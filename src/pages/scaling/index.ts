@@ -1,0 +1,1 @@
+export { ScalingPolicyPage } from './scaling-policy-page'; 

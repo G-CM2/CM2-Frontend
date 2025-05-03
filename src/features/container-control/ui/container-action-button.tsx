@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiService, ContainerActionResponse } from '@/shared/api';
+import { ContainerActionRequest, ContainerActionResponse, useContainerAction } from '@/shared/api';
 
 interface ContainerActionButtonProps {
   containerId: string;
@@ -16,57 +16,57 @@ export const ContainerActionButton = ({
   variant = 'primary',
   onActionComplete,
 }: ContainerActionButtonProps) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const containerAction = useContainerAction();
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  const getButtonStyle = () => {
+  const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-blue-500 hover:bg-blue-600 text-white';
+        return isHovered
+          ? 'bg-blue-600 hover:bg-blue-700'
+          : 'bg-blue-500 hover:bg-blue-600';
       case 'secondary':
-        return 'bg-gray-500 hover:bg-gray-600 text-white';
+        return isHovered
+          ? 'bg-gray-600 hover:bg-gray-700'
+          : 'bg-gray-500 hover:bg-gray-600';
       case 'danger':
-        return 'bg-red-500 hover:bg-red-600 text-white';
+        return isHovered
+          ? 'bg-red-600 hover:bg-red-700'
+          : 'bg-red-500 hover:bg-red-600';
+      default:
+        return isHovered
+          ? 'bg-blue-600 hover:bg-blue-700'
+          : 'bg-blue-500 hover:bg-blue-600';
     }
   };
 
-  const handleAction = async () => {
+  const handleClick = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await apiService.performContainerAction(
+      const actionData: ContainerActionRequest = { action };
+      const result = await containerAction.mutateAsync({ 
         containerId, 
-        { action }
-      );
+        action: actionData 
+      });
       
       if (onActionComplete) {
-        onActionComplete(response.data);
+        onActionComplete(result);
       }
-    } catch (err: any) {
-      setError(err.message || '컨테이너 제어 중 오류가 발생했습니다.');
-      console.error(`Error performing ${action} on container:`, err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error(`Error performing ${action} action:`, error);
     }
   };
 
   return (
-    <div>
-      <button
-        onClick={handleAction}
-        disabled={loading}
-        className={`px-4 py-2 rounded ${getButtonStyle()} disabled:opacity-50 transition-colors flex items-center justify-center min-w-[100px]`}
-      >
-        {loading ? (
-          <span className="h-5 w-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></span>
-        ) : null}
-        {label}
-      </button>
-      
-      {error && (
-        <div className="mt-2 text-sm text-red-600">{error}</div>
-      )}
-    </div>
+    <button
+      className={`w-full px-4 py-2 text-white rounded transition-colors ${getVariantClasses()} ${
+        containerAction.isPending ? 'opacity-70 cursor-not-allowed' : ''
+      }`}
+      onClick={handleClick}
+      disabled={containerAction.isPending}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {containerAction.isPending ? '처리 중...' : label}
+    </button>
   );
 }; 

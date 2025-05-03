@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { QueryProvider } from './query-provider';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -6,9 +7,9 @@ interface ProvidersProps {
 
 export const Providers = ({ children }: ProvidersProps) => {
   return (
-    <>
+    <QueryProvider>
       {/* 여기에 전역 프로바이더를 추가하세요 (예: ThemeProvider, RouterProvider 등) */}
       {children}
-    </>
+    </QueryProvider>
   );
 }; 

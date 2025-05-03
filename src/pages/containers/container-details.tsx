@@ -1,54 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { apiService, Container, ContainerActionResponse } from '@/shared/api';
+import { 
+  ContainerActionResponse, 
+  useContainer, 
+  useContainerTimeline 
+} from '@/shared/api';
 import { ContainerActionButton } from '@/features/container-control';
 import { Card } from '@/shared/ui/card/card';
 
 export const ContainerDetailsPage = () => {
-  const { containerId } = useParams<{ containerId: string }>();
-  const [container, setContainer] = useState<Container | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { containerId = '' } = useParams<{ containerId: string }>();
   const [actionMessage, setActionMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchContainerDetails = async () => {
-      if (!containerId) {
-        setError('컨테이너 ID가 제공되지 않았습니다.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await apiService.getContainerById(containerId);
-        setContainer(response.data);
-        setError(null);
-      } catch (err) {
-        setError('컨테이너 상세 정보를 불러오는 중 오류가 발생했습니다.');
-        console.error('Error fetching container details:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContainerDetails();
-  }, [containerId]);
+  
+  const { 
+    data: container, 
+    isLoading, 
+    isError 
+  } = useContainer(containerId);
+  
+  const { 
+    data: timelineData, 
+    isLoading: timelineLoading 
+  } = useContainerTimeline(containerId, 30000); // 30초마다 타임라인 데이터 갱신
 
   const handleActionComplete = (response: ContainerActionResponse) => {
-    setActionMessage(response.message);
-    
-    // 액션 완료 후 최신 컨테이너 정보 다시 가져오기
-    setTimeout(async () => {
-      try {
-        if (containerId) {
-          const response = await apiService.getContainerById(containerId);
-          setContainer(response.data);
-        }
-      } catch (err) {
-        console.error('Error refreshing container details:', err);
-      }
-    }, 1000);
+    setActionMessage(`${response.action} 작업이 ${response.status === 'success' ? '성공적으로 완료되었습니다' : '실패했습니다'}.`);
   };
 
   const getStatusColor = (status?: string) => {
@@ -66,7 +42,7 @@ export const ContainerDetailsPage = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
@@ -74,10 +50,10 @@ export const ContainerDetailsPage = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <span className="block sm:inline">{error}</span>
+        <span className="block sm:inline">컨테이너 정보를 불러오는 중 오류가 발생했습니다.</span>
       </div>
     );
   }
@@ -267,6 +243,51 @@ export const ContainerDetailsPage = () => {
           )}
         </div>
       </div>
+
+      {/* 타임라인 섹션 */}
+      <Card className="bg-white shadow-md rounded-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">성능 타임라인</h2>
+        
+        {timelineLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <p className="text-gray-500">타임라인 데이터 로딩 중...</p>
+          </div>
+        ) : timelineData?.datapoints && timelineData.datapoints.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">시간</th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">상태</th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">CPU 사용량</th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase">메모리 사용량</th>
+                </tr>
+              </thead>
+              <tbody>
+                {timelineData.datapoints.map((point, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 border-b border-gray-200">{new Date(point.timestamp).toLocaleString()}</td>
+                    <td className="py-2 px-4 border-b border-gray-200">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        point.status === 'operational' ? 'bg-green-100 text-green-800' : 
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {point.status}
+                      </span>
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-200">{point.cpu_usage.toFixed(2)}%</td>
+                    <td className="py-2 px-4 border-b border-gray-200">{point.memory_usage} MB</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-32">
+            <p className="text-gray-500">타임라인 데이터가 없습니다.</p>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }; 
