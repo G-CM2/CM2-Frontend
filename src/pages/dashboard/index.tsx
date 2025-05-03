@@ -17,11 +17,11 @@ export const DashboardPage = () => {
   
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="flex flex-col w-full h-full space-y-6">
         <h1 className="text-2xl font-bold">대시보드</h1>
         
         {/* 컨테이너 상태 요약 */}
-        <Card title="컨테이너 상태">
+        <Card title="컨테이너 상태" className="w-full">
           {dashboardLoading ? (
             <div className="h-40 flex items-center justify-center">
               <p className="text-gray-500">데이터를 불러오는 중입니다...</p>
@@ -53,7 +53,7 @@ export const DashboardPage = () => {
         </Card>
         
         {/* 리소스 사용량 */}
-        <Card title="시스템 리소스 사용량">
+        <Card title="시스템 리소스 사용량" className="w-full">
           {dashboardLoading ? (
             <div className="h-40 flex items-center justify-center">
               <p className="text-gray-500">데이터를 불러오는 중입니다...</p>
@@ -81,7 +81,7 @@ export const DashboardPage = () => {
         </Card>
         
         {/* 컨테이너 건강 상태 */}
-        <Card title="컨테이너 건강 상태">
+        <Card title="컨테이너 건강 상태" className="w-full">
           {dashboardLoading ? (
             <div className="h-40 flex items-center justify-center">
               <p className="text-gray-500">데이터를 불러오는 중입니다...</p>
@@ -111,7 +111,7 @@ export const DashboardPage = () => {
         </Card>
         
         {/* 최근 이벤트 */}
-        <Card title="최근 이벤트">
+        <Card title="최근 이벤트" className="w-full">
           {dashboardLoading ? (
             <div className="h-40 flex items-center justify-center">
               <p className="text-gray-500">데이터를 불러오는 중입니다...</p>
