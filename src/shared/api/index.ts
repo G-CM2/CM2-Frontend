@@ -18,4 +18,7 @@ export * from './timeline';
 export * from './mock';
 
 // 훅 내보내기
-export * from './hooks'; 
+export * from './hooks';
+
+// API 서비스 모듈 내보내기
+export * from './images'; 

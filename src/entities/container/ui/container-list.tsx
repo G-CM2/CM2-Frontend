@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { containersApi } from '@/shared/api';
 import { Container } from '@/entities/container/types';
 import { Card } from '@/shared/ui/card/card';
+import { Link } from 'react-router-dom';
 
 export const ContainerList = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,11 +18,24 @@ export const ContainerList = () => {
     const fetchContainers = async () => {
       try {
         setLoading(true);
-        const data = await containersApi.getContainers();
-        setContainers(data);
+        const response = await containersApi.getContainers();
+        
+        // API Container 타입에서 entity Container 타입으로 변환
+        const mappedContainers: Container[] = response.containers.map(apiContainer => ({
+          id: apiContainer.id,
+          name: apiContainer.name,
+          image: apiContainer.image,
+          status: apiContainer.status as 'running' | 'stopped' | 'paused',
+          created: apiContainer.created_at,
+          ports: apiContainer.ports ? apiContainer.ports.map(p => `${p.external}:${p.internal}`) : [],
+          cpu: apiContainer.cpu_usage,
+          memory: apiContainer.memory_usage
+        }));
+        
+        setContainers(mappedContainers);
         setPagination(prev => ({
           ...prev,
-          total: data.length
+          total: response.total
         }));
         setError(null);
       } catch (err) {
@@ -94,12 +108,12 @@ export const ContainerList = () => {
                   <span className="text-gray-700 dark:text-gray-300">{container.memory} MB</span>
                 </div>
                 <div className="mt-4">
-                  <button 
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                    onClick={() => {/* 컨테이너 상세 페이지로 이동하는 로직 */}}
+                  <Link 
+                    to={`/containers/${container.id}`}
+                    className="block w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded text-center"
                   >
                     상세 정보
-                  </button>
+                  </Link>
                 </div>
               </div>
             </Card>

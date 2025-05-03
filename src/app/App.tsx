@@ -5,6 +5,7 @@ import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { ContainerListPage } from '@/pages/containers';
 import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { ScalingPolicyPage } from '@/pages/scaling';
+import { ImagesPage } from '@/pages/images';
 
 export const App = () => {
   return (
@@ -15,6 +16,7 @@ export const App = () => {
           <Route path="/containers" element={<ContainerListPage />} />
           <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
           <Route path="/scaling" element={<ScalingPolicyPage />} />
+          <Route path="/images" element={<ImagesPage />} />
         </Routes>
       </BrowserRouter>
     </Providers>

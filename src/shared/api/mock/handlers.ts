@@ -90,6 +90,70 @@ const generateTimelineItems = (containerId: string): TimelineItem[] => {
   ];
 };
 
+// Mock 이미지 데이터
+const mockImages = [
+  {
+    id: 'sha256:a7be6198544c221c5cafebf5c24b8c9ca9dcd5e4f40ec3f5b2d66268c86b82e3',
+    name: 'nginx',
+    tag: 'latest',
+    repository: 'nginx',
+    created_at: '2023-08-15T12:30:45Z',
+    size: 142500000,
+    labels: {
+      'maintainer': 'NGINX Docker Maintainers',
+      'version': '1.23.1'
+    }
+  },
+  {
+    id: 'sha256:69e0654c3fb4d83c388b949b4524b15d378c1c5fc865a93a94558bc5bb5e9be5',
+    name: 'redis',
+    tag: 'alpine',
+    repository: 'redis',
+    created_at: '2023-07-20T09:15:22Z',
+    size: 32450000,
+    labels: {
+      'maintainer': 'Redis Team',
+      'version': '7.0.4'
+    }
+  },
+  {
+    id: 'sha256:22bad08db2a3f41b927caec222390e83fce94cf36a2662c871970f56297d3d12',
+    name: 'postgres',
+    tag: '13',
+    repository: 'postgres',
+    created_at: '2023-09-05T14:22:10Z',
+    size: 374200000,
+    labels: {
+      'maintainer': 'PostgreSQL Docker Team',
+      'version': '13.8'
+    }
+  },
+  {
+    id: 'sha256:9f3c76d0158d9f6a9042471f36efd2e072f0c18ab3a3b32acfea783c2df2ab0c',
+    name: 'node',
+    tag: '14',
+    repository: 'node',
+    created_at: '2023-06-12T11:45:33Z',
+    size: 955600000,
+    labels: {
+      'maintainer': 'Node.js Docker Team',
+      'version': '14.20.0'
+    }
+  },
+  {
+    id: 'sha256:a70b95e8113e1bc472031d152bc9e6ce0faef9d69fd59e16e7b7ee7111073cc0',
+    name: 'mongo',
+    tag: 'latest',
+    repository: 'mongo',
+    created_at: '2023-08-28T10:20:15Z',
+    size: 696800000,
+    labels: {
+      'maintainer': 'MongoDB Docker Team',
+      'version': '6.0.1'
+    }
+  }
+];
+
 // API 엔드포인트 모킹을 위한 핸들러
 export const handlers = [
   // 컨테이너 목록 조회
@@ -289,6 +353,79 @@ export const handlers = [
         cpu_usage: Math.random() * 100,
         memory_usage: Math.random() * 100
       }))
+    });
+  }),
+
+  // GET /images - 이미지 목록 조회
+  http.get('/api/images', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '20');
+    
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedImages = mockImages.slice(start, end);
+    
+    return HttpResponse.json({
+      total: mockImages.length,
+      page,
+      limit,
+      images: paginatedImages
+    });
+  }),
+  
+  // GET /images/:id - 이미지 상세 정보 조회
+  http.get('/api/images/:id', ({ params }) => {
+    const { id } = params;
+    const image = mockImages.find(img => img.id === id);
+    
+    if (!image) {
+      return new HttpResponse(null, {
+        status: 404,
+        statusText: 'Image not found'
+      });
+    }
+    
+    return HttpResponse.json(image);
+  }),
+  
+  // DELETE /images/:id - 이미지 삭제
+  http.delete('/api/images/:id', ({ params }) => {
+    const { id } = params;
+    const imageIndex = mockImages.findIndex(img => img.id === id);
+    
+    if (imageIndex === -1) {
+      return new HttpResponse(null, {
+        status: 404,
+        statusText: 'Image not found'
+      });
+    }
+    
+    // 실제 DB에서는 삭제 로직이 필요하지만 여기서는 상태 응답만 반환
+    return HttpResponse.json({
+      id,
+      status: 'success',
+      message: 'Image deleted successfully'
+    });
+  }),
+  
+  // POST /images/pull - 이미지 풀
+  http.post('/api/images/pull', async ({ request }) => {
+    const data = await request.json() as { repository: string, tag?: string };
+    const { repository, tag } = data;
+    
+    // 실제로는 Docker API를 통해 이미지를 풀하는 로직이 필요하나, 여기서는 모의 응답만 반환
+    return HttpResponse.json({
+      id: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+      name: repository,
+      tag: tag || 'latest',
+      repository,
+      created_at: new Date().toISOString(),
+      size: Math.floor(Math.random() * 1000000000),
+      labels: {
+        'pulled': 'true',
+        'date': new Date().toISOString()
+      }
     });
   })
 ]; 
