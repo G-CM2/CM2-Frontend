@@ -12,7 +12,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-white dark:bg-gray-800 h-screen shadow-md">
+    <aside className="w-64 flex-shrink-0 bg-white dark:bg-gray-800 h-full shadow-md">
       <nav className="h-full flex flex-col p-4">
         <ul className="space-y-2">
           <li>

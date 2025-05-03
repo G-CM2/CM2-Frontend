@@ -8,16 +8,18 @@ import { DashboardPage } from '@/pages/dashboard';
 
 export const App = () => {
   return (
-    <Providers>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/containers" element={<ContainerListPage />} />
-          <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
-          <Route path="/scaling" element={<ScalingPolicyPage />} />
-        </Routes>
-      </BrowserRouter>
-    </Providers>
+    <div className="w-full h-full flex flex-col">
+      <Providers>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/containers" element={<ContainerListPage />} />
+            <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
+            <Route path="/scaling" element={<ScalingPolicyPage />} />
+          </Routes>
+        </BrowserRouter>
+      </Providers>
+    </div>
   );
 }; 
