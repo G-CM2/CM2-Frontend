@@ -3,8 +3,21 @@ import ReactDOM from 'react-dom/client'
 import { App } from './app/App'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+async function bootstrap() {
+  // 개발 환경에서만 MSW 적용
+  if (import.meta.env.DEV) {
+    const { worker } = await import('./shared/api/mock')
+    await worker.start({
+      onUnhandledRequest: 'bypass', // 처리되지 않은 요청은 실제 네트워크로 전달
+    })
+    console.log('[MSW] 모킹 서버가 시작되었습니다.')
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  )
+}
+
+bootstrap()

@@ -1,21 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiService, ContainerTimelineResponse } from '../api-service';
+import { containersApi, TimelineItem } from '../containers';
 
-export const QUERY_KEYS = {
-  containerTimeline: 'container-timeline',
+const QUERY_KEYS = {
+  timeline: 'timeline',
 };
 
 /**
- * 컨테이너 타임라인 데이터를 조회하는 훅
+ * 특정 컨테이너의 타임라인 데이터를 조회하는 훅
+ * @param containerId 컨테이너 ID
+ * @param refreshInterval 자동 갱신 간격 (밀리초)
  */
-export const useContainerTimeline = (containerId: string, refetchInterval?: number) => {
-  return useQuery<ContainerTimelineResponse>({
-    queryKey: [QUERY_KEYS.containerTimeline, containerId],
+export const useContainerTimeline = (containerId: string, refreshInterval?: number) => {
+  return useQuery<TimelineItem[]>({
+    queryKey: [QUERY_KEYS.timeline, containerId],
     queryFn: async () => {
-      const response = await apiService.getContainerTimeline(containerId);
-      return response.data;
+      return await containersApi.getContainerTimeline(containerId);
     },
     enabled: !!containerId,
-    refetchInterval,
+    refetchInterval: refreshInterval,
   });
 }; 

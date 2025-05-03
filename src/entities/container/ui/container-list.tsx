@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { apiService, Container, ContainersResponse } from '@/shared/api';
+import { containersApi } from '@/shared/api';
+import { Container } from '@/entities/container/types';
 import { Card } from '@/shared/ui/card/card';
 
 export const ContainerList = () => {
@@ -16,13 +17,12 @@ export const ContainerList = () => {
     const fetchContainers = async () => {
       try {
         setLoading(true);
-        const response = await apiService.getContainers(pagination.page, pagination.limit);
-        setContainers(response.data.containers);
-        setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit
-        });
+        const data = await containersApi.getContainers();
+        setContainers(data);
+        setPagination(prev => ({
+          ...prev,
+          total: data.length
+        }));
         setError(null);
       } catch (err) {
         setError('컨테이너 목록을 불러오는 중 오류가 발생했습니다.');
@@ -87,11 +87,11 @@ export const ContainerList = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">CPU:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{container.cpu_usage}%</span>
+                  <span className="text-gray-700 dark:text-gray-300">{container.cpu}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">메모리:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{container.memory_usage} MB</span>
+                  <span className="text-gray-700 dark:text-gray-300">{container.memory} MB</span>
                 </div>
                 <div className="mt-4">
                   <button 
