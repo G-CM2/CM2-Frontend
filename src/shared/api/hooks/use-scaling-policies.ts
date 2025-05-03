@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { scalingApi, ScalingPolicy } from '../scaling';
+import { scalingApi, ScalingPolicy, ScalingPoliciesResponse } from '../scaling';
 
 const QUERY_KEYS = {
   scalingPolicies: 'scalingPolicies',
@@ -10,10 +10,10 @@ const QUERY_KEYS = {
  * 스케일링 정책 목록을 조회하는 훅
  */
 export const useScalingPolicies = () => {
-  return useQuery<ScalingPolicy[]>({
+  return useQuery<ScalingPoliciesResponse>({
     queryKey: [QUERY_KEYS.scalingPolicies],
     queryFn: async () => {
-      return await scalingApi.getPolicies();
+      return await scalingApi.getScalingPolicies();
     },
   });
 };
@@ -26,7 +26,7 @@ export const useScalingPolicy = (policyId?: string) => {
     queryKey: [QUERY_KEYS.scalingPolicy, policyId],
     queryFn: async () => {
       if (!policyId) throw new Error('정책 ID가 필요합니다.');
-      return await scalingApi.getPolicy(policyId);
+      return await scalingApi.getScalingPolicy(policyId);
     },
     enabled: !!policyId, // ID가 있을 때만 쿼리 실행
   });
@@ -38,9 +38,9 @@ export const useScalingPolicy = (policyId?: string) => {
 export const useCreateScalingPolicy = () => {
   const queryClient = useQueryClient();
   
-  return useMutation<ScalingPolicy, Error, Omit<ScalingPolicy, 'id'>>({
+  return useMutation<ScalingPolicy, Error, Omit<ScalingPolicy, 'id' | 'created_at' | 'updated_at'>>({
     mutationFn: async (newPolicy) => {
-      return await scalingApi.createPolicy(newPolicy);
+      return await scalingApi.createScalingPolicy(newPolicy);
     },
     onSuccess: () => {
       // 정책 목록 갱신
@@ -61,7 +61,7 @@ export const useUpdateScalingPolicy = () => {
     { policyId: string; policy: Partial<ScalingPolicy> }
   >({
     mutationFn: async ({ policyId, policy }) => {
-      return await scalingApi.updatePolicy(policyId, policy);
+      return await scalingApi.updateScalingPolicy(policyId, policy);
     },
     onSuccess: (_, { policyId }) => {
       // 단일 정책 및 목록 갱신
@@ -79,7 +79,8 @@ export const useDeleteScalingPolicy = () => {
   
   return useMutation<{ success: boolean }, Error, string>({
     mutationFn: async (policyId) => {
-      return await scalingApi.deletePolicy(policyId);
+      const result = await scalingApi.deleteScalingPolicy(policyId);
+      return { success: result };
     },
     onSuccess: () => {
       // 정책 목록 갱신

@@ -150,7 +150,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
             placeholder="예: 웹 서버 스케일링"
             required
           />
@@ -165,7 +165,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
             id="target"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
             placeholder="예: nginx-server"
             required
           />
@@ -182,7 +182,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
               value={minReplicas}
               onChange={(e) => setMinReplicas(parseInt(e.target.value))}
               min="1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
               required
             />
           </div>
@@ -196,7 +196,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
               value={maxReplicas}
               onChange={(e) => setMaxReplicas(parseInt(e.target.value))}
               min={minReplicas + 1}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
               required
             />
           </div>
@@ -211,7 +211,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
               <button
                 type="button"
                 onClick={handleAddMetric}
-                className="text-sm text-blue-500 hover:text-blue-700"
+                className="text-sm text-indigo-600 hover:text-indigo-800"
               >
                 + 메트릭 추가
               </button>
@@ -223,7 +223,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
               <select
                 value={metric.type}
                 onChange={(e) => handleMetricChange(index, 'type', e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
               >
                 <option value="cpu">CPU</option>
                 <option value="memory">메모리</option>
@@ -234,7 +234,7 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
                 onChange={(e) => handleMetricChange(index, 'target_value', e.target.value)}
                 min="1"
                 max="100"
-                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-20 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
               />
               <span className="text-gray-700">%</span>
               {metrics.length > 1 && (
@@ -250,8 +250,9 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
               )}
             </div>
           ))}
+          
           <p className="text-xs text-gray-500 mt-1">
-            설정한 임계값을 초과하면 자동으로 복제본이 추가됩니다.
+            설정한 메트릭 사용량이 임계값을 초과하면 자동 스케일링이 시작됩니다.
           </p>
         </div>
         
@@ -260,17 +261,14 @@ export const CreateScalingPolicyForm = ({ onSuccess, onCancel }: CreateScalingPo
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-              disabled={createPolicyMutation.isPending}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
               취소
             </button>
           )}
           <button
             type="submit"
-            className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors ${
-              createPolicyMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             disabled={createPolicyMutation.isPending}
           >
             {createPolicyMutation.isPending ? '처리 중...' : '정책 생성'}

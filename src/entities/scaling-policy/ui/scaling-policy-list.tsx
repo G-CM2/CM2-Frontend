@@ -1,5 +1,5 @@
 import { useScalingPolicies } from '@/shared/api';
-import { Card } from '@/shared/ui/card/card';
+import { ScalingPolicy, ScalingMetric } from '@/shared/api/scaling';
 
 export const ScalingPolicyList = () => {
   const { data, isLoading, isError } = useScalingPolicies();
@@ -8,7 +8,7 @@ export const ScalingPolicyList = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">로딩 중...</p>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -33,8 +33,8 @@ export const ScalingPolicyList = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {policies.map((policy) => (
-        <Card key={policy.id} className="bg-white shadow-md">
+      {policies.map((policy: ScalingPolicy) => (
+        <div key={policy.id} className="border border-gray-200 rounded-md p-4 bg-white">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
             <div>
               <h3 className="text-xl font-semibold text-gray-900">{policy.name}</h3>
@@ -64,7 +64,7 @@ export const ScalingPolicyList = () => {
           <div className="border-t border-gray-200 pt-4">
             <p className="text-sm text-gray-500 mb-2">메트릭 임계값</p>
             <div className="flex flex-wrap gap-2">
-              {policy.metrics.map((metric, idx) => (
+              {policy.metrics.map((metric: ScalingMetric, idx: number) => (
                 <div 
                   key={idx} 
                   className={`px-3 py-1 rounded-full text-xs ${
@@ -76,7 +76,7 @@ export const ScalingPolicyList = () => {
               ))}
             </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
