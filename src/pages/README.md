@@ -20,9 +20,13 @@ pages/
 │   │   ├── scaling-policy-list-page.tsx  # 스케일링 정책 목록 페이지
 │   │   └── create-scaling-policy-page.tsx # 스케일링 정책 생성 페이지
 │   └── index.ts             # 내보내기
-└── cluster-topology/        # 클러스터 토폴로지 관련 페이지
+├── cluster-topology/        # 클러스터 토폴로지 관련 페이지
+│   ├── ui/
+│   │   └── cluster-topology-page.tsx  # 클러스터 토폴로지 시각화 페이지
+│   └── index.ts             # 내보내기
+└── service-deployment/      # 서비스 배포 관련 페이지
     ├── ui/
-    │   └── cluster-topology-page.tsx  # 클러스터 토폴로지 시각화 페이지
+    │   └── service-deployment-page.tsx  # 서비스 배포 시각화 페이지
     └── index.ts             # 내보내기
 ```
 
@@ -34,6 +38,7 @@ pages/
 - **scaling-policy-list-page**: 설정된 자동 스케일링 정책 목록을 표시합니다.
 - **create-scaling-policy-page**: 새로운 자동 스케일링 정책을 생성하는 페이지입니다.
 - **cluster-topology-page**: Docker Swarm 클러스터의 노드 구성과 연결 상태를 시각적으로 표시하는 페이지입니다.
+- **service-deployment-page**: Docker Swarm 서비스 배포 과정을 단계별 애니메이션으로 시각화하는 페이지입니다.
 
 ## 페이지 구성 원칙
 
@@ -80,6 +85,7 @@ import { DashboardPage } from '@/pages/dashboard';
 import { ContainerListPage, ContainerDetailsPage } from '@/pages/containers';
 import { ScalingPolicyListPage, CreateScalingPolicyPage } from '@/pages/scaling';
 import { ClusterTopologyPage } from '@/pages/cluster-topology';
+import { ServiceDeploymentPage } from '@/pages/service-deployment';
 
 export const AppRoutes = () => {
   return (
@@ -90,6 +96,7 @@ export const AppRoutes = () => {
       <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
       <Route path="/scaling" element={<ScalingPolicyListPage />} />
       <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
+      <Route path="/service-deployment" element={<ServiceDeploymentPage />} />
     </Routes>
   );
 };

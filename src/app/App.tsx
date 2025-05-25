@@ -6,6 +6,7 @@ import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { ScalingPolicyPage } from '@/pages/scaling';
 import { DashboardPage } from '@/pages/dashboard';
 import { ClusterTopologyPage } from '@/pages/cluster-topology';
+import { ServiceDeploymentPage } from '@/pages/service-deployment';
 
 export const App = () => {
   return (
@@ -19,6 +20,7 @@ export const App = () => {
             <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
             <Route path="/scaling" element={<ScalingPolicyPage />} />
             <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
+            <Route path="/service-deployment" element={<ServiceDeploymentPage />} />
           </Routes>
         </BrowserRouter>
       </Providers>
