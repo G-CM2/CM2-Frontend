@@ -6,29 +6,34 @@
 
 ```
 pages/
-├── home/                    # 홈페이지/대시보드 관련 페이지
+├── dashboard/               # 대시보드 관련 페이지
 │   ├── ui/
-│   │   └── home-page.tsx    # 홈/대시보드 페이지 컴포넌트
+│   │   └── dashboard-page.tsx    # 메인 대시보드 페이지 컴포넌트
 │   └── index.ts             # 내보내기
 ├── containers/              # 컨테이너 관련 페이지
 │   ├── ui/
 │   │   ├── container-list-page.tsx   # 컨테이너 목록 페이지
 │   │   └── container-details-page.tsx # 컨테이너 상세 페이지
 │   └── index.ts             # 내보내기
-└── scaling/                 # 스케일링 정책 관련 페이지
+├── scaling/                 # 스케일링 정책 관련 페이지
+│   ├── ui/
+│   │   ├── scaling-policy-list-page.tsx  # 스케일링 정책 목록 페이지
+│   │   └── create-scaling-policy-page.tsx # 스케일링 정책 생성 페이지
+│   └── index.ts             # 내보내기
+└── cluster-topology/        # 클러스터 토폴로지 관련 페이지
     ├── ui/
-    │   ├── scaling-policy-list-page.tsx  # 스케일링 정책 목록 페이지
-    │   └── create-scaling-policy-page.tsx # 스케일링 정책 생성 페이지
+    │   └── cluster-topology-page.tsx  # 클러스터 토폴로지 시각화 페이지
     └── index.ts             # 내보내기
 ```
 
 ## 현재 페이지
 
-- **home-page**: 메인 대시보드 페이지로, 시스템 요약 정보와 주요 컨테이너 상태를 보여줍니다.
+- **dashboard-page**: 메인 대시보드 페이지로, 시스템 요약 정보와 주요 컨테이너 상태를 보여줍니다.
 - **container-list-page**: 모든 컨테이너 목록을 표시하는 페이지입니다.
 - **container-details-page**: 특정 컨테이너의 상세 정보와 로그, 성능 지표를 표시합니다.
 - **scaling-policy-list-page**: 설정된 자동 스케일링 정책 목록을 표시합니다.
 - **create-scaling-policy-page**: 새로운 자동 스케일링 정책을 생성하는 페이지입니다.
+- **cluster-topology-page**: Docker Swarm 클러스터의 노드 구성과 연결 상태를 시각적으로 표시하는 페이지입니다.
 
 ## 페이지 구성 원칙
 
@@ -71,18 +76,20 @@ export const SomePage = () => {
 
 ```tsx
 import { Route, Routes } from 'react-router-dom';
-import { HomePage } from '@/pages/home';
+import { DashboardPage } from '@/pages/dashboard';
 import { ContainerListPage, ContainerDetailsPage } from '@/pages/containers';
 import { ScalingPolicyListPage, CreateScalingPolicyPage } from '@/pages/scaling';
+import { ClusterTopologyPage } from '@/pages/cluster-topology';
 
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<DashboardPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/containers" element={<ContainerListPage />} />
       <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
       <Route path="/scaling" element={<ScalingPolicyListPage />} />
-      <Route path="/scaling/create" element={<CreateScalingPolicyPage />} />
+      <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
     </Routes>
   );
 };
