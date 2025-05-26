@@ -36,8 +36,8 @@ export const useContainerAction = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ containerId, action }: { containerId: string; action: string }) => {
-      return containersApi.performContainerAction(containerId, { action } as ContainerActionRequest);
+    mutationFn: ({ containerId, action }: { containerId: string; action: ContainerActionRequest }) => {
+      return containersApi.performContainerAction(containerId, action);
     },
     onSuccess: (_data, variables) => {
       // 액션이 성공하면 컨테이너 정보를 다시 조회
@@ -54,7 +54,7 @@ export const useStartContainer = () => {
   const containerAction = useContainerAction();
   
   return {
-    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'start' }),
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: { action: 'start' } }),
     isLoading: containerAction.isPending,
     isError: containerAction.isError,
     error: containerAction.error
@@ -68,7 +68,7 @@ export const useStopContainer = () => {
   const containerAction = useContainerAction();
   
   return {
-    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'stop' }),
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: { action: 'stop' } }),
     isLoading: containerAction.isPending,
     isError: containerAction.isError,
     error: containerAction.error
@@ -82,7 +82,7 @@ export const useRestartContainer = () => {
   const containerAction = useContainerAction();
   
   return {
-    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'restart' }),
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: { action: 'restart' } }),
     isLoading: containerAction.isPending,
     isError: containerAction.isError,
     error: containerAction.error
@@ -96,7 +96,7 @@ export const usePauseContainer = () => {
   const containerAction = useContainerAction();
   
   return {
-    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'pause' }),
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: { action: 'pause' } }),
     isLoading: containerAction.isPending,
     isError: containerAction.isError,
     error: containerAction.error
@@ -110,7 +110,7 @@ export const useUnpauseContainer = () => {
   const containerAction = useContainerAction();
   
   return {
-    mutate: (containerId: string) => containerAction.mutate({ containerId, action: 'unpause' }),
+    mutate: (containerId: string) => containerAction.mutate({ containerId, action: { action: 'unpause' } }),
     isLoading: containerAction.isPending,
     isError: containerAction.isError,
     error: containerAction.error

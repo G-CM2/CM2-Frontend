@@ -12,7 +12,7 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    // "noEmit": true, // project reference에서는 사용 불가
+    "emitDeclarationOnly": true,
 
     /* Linting */
     "strict": true,
