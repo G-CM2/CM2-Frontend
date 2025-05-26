@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout } from '@/widgets/layout';
 import { SimpleAutoscalingView } from '@/widgets/autoscaling-simulation-view';
-import { SimpleSelfHealingView } from '@/widgets/self-healing-simulation-view';
+import { SelfHealingSimulationView } from '@/widgets/self-healing-simulation-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Shield } from 'lucide-react';
 
@@ -37,7 +37,7 @@ export const ClusterTopologyPage: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="self-healing" className="mt-6">
-            <SimpleSelfHealingView />
+            <SelfHealingSimulationView />
           </TabsContent>
         </Tabs>
       </div>

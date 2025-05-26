@@ -1,5 +1,5 @@
-import React from 'react';
-import { AutoscalingSimulation } from '../types';
+import React, { useState } from 'react';
+import { AutoscalingSimulation, SelfHealingEvent } from '../types';
 
 interface ScalingAnimationProps {
   simulation: AutoscalingSimulation;
@@ -14,6 +14,9 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
 }) => {
   const { currentReplicas, targetReplicas, phase, metrics } = simulation;
   
+  const [selfHealingTimeline, setSelfHealingTimeline] = useState<SelfHealingEvent[]>([]);
+  const [failureContainer, setFailureContainer] = useState<number | null>(null);
+
   const maxReplicas = Math.max(currentReplicas, targetReplicas, 6);
   // 동적으로 그리드 계산
   const cols = Math.ceil(Math.sqrt(maxReplicas));
@@ -63,6 +66,49 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
     }
   };
   
+  // 컨테이너 클릭 시 장애 시뮬레이션
+  const handleContainerClick = (index: number) => {
+    if (failureContainer !== null) return; // 한 번에 하나만 장애
+    setFailureContainer(index);
+    const now = new Date();
+    const events: SelfHealingEvent[] = [
+      {
+        id: `${index}-fail`,
+        containerIndex: index,
+        step: 'failure',
+        timestamp: now.toISOString(),
+        description: `컨테이너 #${index + 1} 장애 발생`
+      },
+      {
+        id: `${index}-detect`,
+        containerIndex: index,
+        step: 'detected',
+        timestamp: new Date(now.getTime() + 1000).toISOString(),
+        description: `장애 감지`
+      },
+      {
+        id: `${index}-restart`,
+        containerIndex: index,
+        step: 'restarting',
+        timestamp: new Date(now.getTime() + 2000).toISOString(),
+        description: `컨테이너 재시작 중`
+      },
+      {
+        id: `${index}-recover`,
+        containerIndex: index,
+        step: 'recovered',
+        timestamp: new Date(now.getTime() + 3000).toISOString(),
+        description: `서비스 복구 완료`
+      }
+    ];
+    setSelfHealingTimeline(events);
+    // 3초 후 장애 상태 해제
+    setTimeout(() => {
+      setFailureContainer(null);
+      setTimeout(() => setSelfHealingTimeline([]), 1000);
+    }, 3000);
+  };
+
   return (
     <div className="relative">
       <svg width={width} height={height} className="border rounded bg-gray-50">
@@ -72,27 +118,25 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
           const status = getContainerStatus(index);
           const color = getContainerColor(status);
           const metric = metrics && metrics[index];
-          
+          // 장애 상태면 빨간색 강조
+          const isFailed = failureContainer === index;
           return (
-            <g key={index}>
-              {/* 컨테이너 박스 */}
+            <g key={index} onClick={() => handleContainerClick(index)} style={{ cursor: 'pointer' }}>
               <rect
                 x={position.x - boxSize / 2}
                 y={position.y - boxSize / 2}
                 width={boxSize}
                 height={boxSize}
                 rx={boxSize * 0.15}
-                fill={color}
+                fill={isFailed ? '#ef4444' : color}
                 stroke="#ffffff"
-                strokeWidth={3}
+                strokeWidth={isFailed ? 5 : 3}
                 className={`transition-all duration-1000 ${
                   status === 'starting' ? 'animate-pulse' : ''
                 } ${
                   status === 'stopping' ? 'opacity-50' : 'opacity-100'
                 }`}
               />
-              
-              {/* 컨테이너 아이콘 */}
               <text
                 x={position.x}
                 y={position.y + 6}
@@ -103,8 +147,6 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
               >
                 {index + 1}
               </text>
-              
-              {/* CPU/메모리 사용률 표시 */}
               {metric && (
                 <text
                   x={position.x}
@@ -117,7 +159,6 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
                   CPU {metric.cpu.toFixed(0)}% | MEM {metric.memory.toFixed(0)}%
                 </text>
               )}
-              
               {/* 상태 표시 */}
               {status === 'starting' && (
                 <circle
@@ -143,7 +184,6 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
                   />
                 </circle>
               )}
-              
               {status === 'stopping' && (
                 <g>
                   <line
@@ -206,6 +246,32 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
           <div className="text-gray-600">현재 상태</div>
         </div>
       </div>
+      {/* 셀프힐링 타임라인 */}
+      {selfHealingTimeline.length > 0 && (
+        <div className="mt-6">
+          <div className="font-bold text-gray-700 mb-2">셀프 힐링 타임라인</div>
+          <ol className="space-y-2">
+            {selfHealingTimeline.map((event) => (
+              <li key={event.id} className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ background: getStepColor(event.step) }}></span>
+                <span className="text-sm">{event.description}</span>
+                <span className="text-xs text-gray-400">{new Date(event.timestamp).toLocaleTimeString()}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
-}; 
+};
+
+// 타임라인 단계별 색상
+function getStepColor(step: SelfHealingEvent['step']) {
+  switch (step) {
+    case 'failure': return '#ef4444';
+    case 'detected': return '#f59e42';
+    case 'restarting': return '#3b82f6';
+    case 'recovered': return '#22c55e';
+    default: return '#9ca3af';
+  }
+} 

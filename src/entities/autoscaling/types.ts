@@ -25,6 +25,14 @@ export interface AutoscalingEvent {
   reason: string;
 }
 
+export interface SelfHealingEvent {
+  id: string;
+  containerIndex: number;
+  step: 'failure' | 'detected' | 'restarting' | 'recovered';
+  timestamp: string;
+  description: string;
+}
+
 export interface AutoscalingSimulation {
   isRunning: boolean;
   currentReplicas: number;
@@ -33,6 +41,7 @@ export interface AutoscalingSimulation {
   thresholds: AutoscalingThreshold;
   events: AutoscalingEvent[];
   phase: 'monitoring' | 'scaling' | 'stabilizing';
+  selfHealingTimeline?: SelfHealingEvent[];
 }
 
 export interface ServiceMetrics {
