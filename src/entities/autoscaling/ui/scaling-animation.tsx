@@ -12,21 +12,27 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
   width = 400,
   height = 300
 }) => {
-  const { currentReplicas, targetReplicas, phase } = simulation;
+  const { currentReplicas, targetReplicas, phase, metrics } = simulation;
   
-  const getContainerPosition = (index: number, total: number) => {
-    const cols = Math.ceil(Math.sqrt(total));
+  const maxReplicas = Math.max(currentReplicas, targetReplicas, 6);
+  // 동적으로 그리드 계산
+  const cols = Math.ceil(Math.sqrt(maxReplicas));
+  const rows = Math.ceil(maxReplicas / cols);
+  // spacing과 박스 크기 동적 계산
+  const boxSize = Math.min(
+    (width - 40) / cols - 10,
+    (height - 60) / rows - 10,
+    60
+  );
+  const spacingX = (width - boxSize * cols) / (cols + 1);
+  const spacingY = (height - boxSize * rows) / (rows + 1);
+  
+  const getContainerPosition = (index: number) => {
     const row = Math.floor(index / cols);
     const col = index % cols;
-    
-    const spacing = 60;
-    const startX = (width - (cols - 1) * spacing) / 2;
-    const startY = (height - (Math.ceil(total / cols) - 1) * spacing) / 2;
-    
-    return {
-      x: startX + col * spacing,
-      y: startY + row * spacing
-    };
+    const x = spacingX + col * (boxSize + spacingX) + boxSize / 2;
+    const y = spacingY + row * (boxSize + spacingY) + boxSize / 2;
+    return { x, y };
   };
   
   const getContainerStatus = (index: number) => {
@@ -57,29 +63,28 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
     }
   };
   
-  const maxReplicas = Math.max(currentReplicas, targetReplicas, 6);
-  
   return (
     <div className="relative">
       <svg width={width} height={height} className="border rounded bg-gray-50">
         {/* 컨테이너들 */}
         {Array.from({ length: maxReplicas }, (_, index) => {
-          const position = getContainerPosition(index, maxReplicas);
+          const position = getContainerPosition(index);
           const status = getContainerStatus(index);
           const color = getContainerColor(status);
+          const metric = metrics && metrics[index];
           
           return (
             <g key={index}>
               {/* 컨테이너 박스 */}
               <rect
-                x={position.x - 20}
-                y={position.y - 20}
-                width="40"
-                height="40"
-                rx="4"
+                x={position.x - boxSize / 2}
+                y={position.y - boxSize / 2}
+                width={boxSize}
+                height={boxSize}
+                rx={boxSize * 0.15}
                 fill={color}
                 stroke="#ffffff"
-                strokeWidth="2"
+                strokeWidth={3}
                 className={`transition-all duration-1000 ${
                   status === 'starting' ? 'animate-pulse' : ''
                 } ${
@@ -90,27 +95,43 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
               {/* 컨테이너 아이콘 */}
               <text
                 x={position.x}
-                y={position.y + 5}
+                y={position.y + 6}
                 textAnchor="middle"
-                className="text-xs fill-white font-bold"
+                className="font-bold"
+                fontSize={boxSize * 0.38}
+                fill="#fff"
               >
                 {index + 1}
               </text>
+              
+              {/* CPU/메모리 사용률 표시 */}
+              {metric && (
+                <text
+                  x={position.x}
+                  y={position.y + boxSize / 2 + 18}
+                  textAnchor="middle"
+                  className="font-semibold"
+                  fontSize={boxSize * 0.22}
+                  fill="#374151"
+                >
+                  CPU {metric.cpu.toFixed(0)}% | MEM {metric.memory.toFixed(0)}%
+                </text>
+              )}
               
               {/* 상태 표시 */}
               {status === 'starting' && (
                 <circle
                   cx={position.x}
                   cy={position.y}
-                  r="25"
+                  r={boxSize * 0.55}
                   fill="none"
                   stroke="#3b82f6"
-                  strokeWidth="2"
+                  strokeWidth={2}
                   opacity="0.6"
                 >
                   <animate
                     attributeName="r"
-                    values="20;30;20"
+                    values={`${boxSize * 0.45};${boxSize * 0.65};${boxSize * 0.45}`}
                     dur="2s"
                     repeatCount="indefinite"
                   />
@@ -126,20 +147,20 @@ export const ScalingAnimation: React.FC<ScalingAnimationProps> = ({
               {status === 'stopping' && (
                 <g>
                   <line
-                    x1={position.x - 10}
-                    y1={position.y - 10}
-                    x2={position.x + 10}
-                    y2={position.y + 10}
+                    x1={position.x - boxSize * 0.25}
+                    y1={position.y - boxSize * 0.25}
+                    x2={position.x + boxSize * 0.25}
+                    y2={position.y + boxSize * 0.25}
                     stroke="#ffffff"
-                    strokeWidth="3"
+                    strokeWidth={3}
                   />
                   <line
-                    x1={position.x + 10}
-                    y1={position.y - 10}
-                    x2={position.x - 10}
-                    y2={position.y + 10}
+                    x1={position.x + boxSize * 0.25}
+                    y1={position.y - boxSize * 0.25}
+                    x2={position.x - boxSize * 0.25}
+                    y2={position.y + boxSize * 0.25}
                     stroke="#ffffff"
-                    strokeWidth="3"
+                    strokeWidth={3}
                   />
                 </g>
               )}

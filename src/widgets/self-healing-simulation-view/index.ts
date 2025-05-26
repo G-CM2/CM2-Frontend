@@ -1,1 +1,1 @@
-export { SelfHealingSimulationView } from './ui/self-healing-simulation-view'; 
+export { SelfHealingSimulationView } from './ui/self-healing-simulation-view';
