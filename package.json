@@ -48,7 +48,8 @@
   },
   "msw": {
     "workerDirectory": [
-      "public"
+      "public",
+      "public/CM2-Frontend"
     ]
   }
 }

@@ -4,6 +4,7 @@ import path from "path"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/CM2-Frontend/',
   plugins: [react()],
   resolve: {
     alias: {

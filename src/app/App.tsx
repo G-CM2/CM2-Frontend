@@ -12,7 +12,7 @@ export const App = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <Providers>
-        <BrowserRouter>
+        <BrowserRouter basename="/CM2-Frontend/">
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
