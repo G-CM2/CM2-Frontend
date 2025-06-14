@@ -1,111 +1,118 @@
-# 페이지 (Pages)
+# Pages 모듈
 
-이 폴더는 애플리케이션의 각 페이지 컴포넌트를 포함합니다. 각 페이지는 라우트와 직접 매핑됩니다.
+이 폴더는 애플리케이션의 각 페이지 컴포넌트들을 포함합니다. 각 페이지는 독립적인 라우트를 가지며, 여러 위젯과 피처를 조합하여 완전한 사용자 인터페이스를 제공합니다.
 
-## 디렉토리 구조
+## 구조
 
 ```
 pages/
-├── dashboard/               # 대시보드 관련 페이지
-│   ├── ui/
-│   │   └── dashboard-page.tsx    # 메인 대시보드 페이지 컴포넌트
-│   └── index.ts             # 내보내기
-├── containers/              # 컨테이너 관련 페이지
-│   ├── ui/
-│   │   ├── container-list-page.tsx   # 컨테이너 목록 페이지
-│   │   └── container-details-page.tsx # 컨테이너 상세 페이지
-│   └── index.ts             # 내보내기
-├── scaling/                 # 스케일링 정책 관련 페이지
-│   ├── ui/
-│   │   ├── scaling-policy-list-page.tsx  # 스케일링 정책 목록 페이지
-│   │   └── create-scaling-policy-page.tsx # 스케일링 정책 생성 페이지
-│   └── index.ts             # 내보내기
-├── cluster-topology/        # 클러스터 토폴로지 관련 페이지
-│   ├── ui/
-│   │   └── cluster-topology-page.tsx  # 클러스터 토폴로지 시각화 페이지
-│   └── index.ts             # 내보내기
-└── service-deployment/      # 서비스 배포 관련 페이지
-    ├── ui/
-    │   └── service-deployment-page.tsx  # 서비스 배포 시각화 페이지
-    └── index.ts             # 내보내기
+├── cluster-monitoring/     # 클러스터 모니터링 페이지 (교육용 시각화)
+├── cluster-topology/       # 클러스터 토폴로지 페이지
+├── containers/             # 컨테이너 관련 페이지들
+├── dashboard/              # 대시보드 페이지
+├── scaling/                # 스케일링 페이지
+├── service-deployment/     # 서비스 배포 페이지
+└── README.md               # 이 파일
 ```
 
-## 현재 페이지
+## 페이지 설명
 
-- **dashboard-page**: 메인 대시보드 페이지로, 시스템 요약 정보와 주요 컨테이너 상태를 보여줍니다.
-- **container-list-page**: 모든 컨테이너 목록을 표시하는 페이지입니다.
-- **container-details-page**: 특정 컨테이너의 상세 정보와 로그, 성능 지표를 표시합니다.
-- **scaling-policy-list-page**: 설정된 자동 스케일링 정책 목록을 표시합니다.
-- **create-scaling-policy-page**: 새로운 자동 스케일링 정책을 생성하는 페이지입니다.
-- **cluster-topology-page**: Docker Swarm 클러스터의 노드 구성과 연결 상태를 시각적으로 표시하는 페이지입니다.
-- **service-deployment-page**: Docker Swarm 서비스 배포 과정을 단계별 애니메이션으로 시각화하는 페이지입니다.
+### 1. cluster-monitoring/
+**교육용 쿠버네틱스 클러스터 모니터링 시각화 페이지**
+- 실시간 클러스터 상태 모니터링
+- 노드 상태 시각화
+- 시스템 리소스 사용량 대시보드
+- 컨테이너 상태 요약
+- 교육용 인터랙티브 요소 포함
 
-## 페이지 구성 원칙
+### 2. cluster-topology/
+클러스터의 네트워크 토폴로지와 노드 간 관계를 시각화합니다.
 
-페이지 컴포넌트는 다음 원칙을 따릅니다:
+### 3. containers/
+컨테이너 관련 페이지들을 포함합니다:
+- 컨테이너 목록 페이지
+- 개별 컨테이너 상세 페이지
 
-1. 페이지는 위젯, 엔티티, 기능 등을 조합하여 구성됩니다.
-2. 페이지 자체는 비즈니스 로직을 포함하지 않고, 구성 요소들을 배치하는 역할만 합니다.
-3. 페이지는 라우팅 시스템과 직접 연결됩니다.
-4. 페이지 간 데이터 전달은 URL 파라미터나 쿼리 파라미터를 사용합니다.
-5. 복잡한 페이지 레이아웃은 위젯을 통해 구현합니다.
+### 4. dashboard/
+전체 시스템의 개요를 제공하는 메인 대시보드입니다.
 
-## 네이밍 규칙
+### 5. scaling/
+서비스 스케일링 정책 관리 페이지입니다.
 
-- 페이지 파일 이름: `page-name-page.tsx`
-- 페이지 컴포넌트 이름: `PageNamePage`
-- 폴더 이름: `page-category` (kebab-case)
+### 6. service-deployment/
+서비스 배포 및 관리 페이지입니다.
 
-## 페이지 구조
+## 페이지 생성 규칙
 
-각 페이지 컴포넌트는 일반적으로 다음 구조를 따릅니다:
+### 폴더 구조
+각 페이지는 다음과 같은 구조를 가져야 합니다:
 
-```tsx
-import React from 'react';
-import { Layout } from '@/widgets/layout';
-import { SomeWidget } from '@/widgets/some-widget';
-import { SomeFeature } from '@/features/some-feature';
+```
+page-name/
+├── index.ts              # 페이지 내보내기
+├── page-name-page.tsx    # 메인 페이지 컴포넌트
+├── ui/                   # 페이지 전용 UI 컴포넌트들
+│   ├── component-name.tsx
+│   └── index.ts
+├── lib/                  # 페이지 전용 로직 (선택적)
+│   ├── utils.ts
+│   └── index.ts
+└── README.md             # 페이지 설명
+```
 
-export const SomePage = () => {
+### 명명 규칙
+- 폴더명: `kebab-case` (예: `cluster-monitoring`)
+- 컴포넌트명: `PascalCase` + `Page` 접미사 (예: `ClusterMonitoringPage`)
+- 파일명: `kebab-case` (예: `cluster-monitoring-page.tsx`)
+
+### 페이지 컴포넌트 작성 규칙
+1. **단일 책임**: 각 페이지는 하나의 주요 기능에 집중
+2. **위젯 조합**: 복잡한 UI는 widgets에서 가져와서 조합
+3. **피처 활용**: 비즈니스 로직은 features에서 가져와서 사용
+4. **API 훅 사용**: shared/api의 훅을 통해 데이터 관리
+5. **반응형 디자인**: 모든 페이지는 반응형으로 구현
+
+### 라우팅 등록
+새로운 페이지를 만든 후에는 `src/app/App.tsx`에 라우트를 등록해야 합니다:
+
+```typescript
+import { NewPage } from '@/pages/new-page';
+
+// Routes 내부에 추가
+<Route path="/new-page" element={<NewPage />} />
+```
+
+## 교육용 페이지 특징
+
+### cluster-monitoring 페이지
+이 페이지는 쿠버네틱스 교육을 목적으로 하며 다음과 같은 특징을 가집니다:
+
+1. **시각적 학습**: 복잡한 클러스터 개념을 직관적으로 이해할 수 있는 시각화
+2. **실시간 데이터**: 실제 클러스터 상태를 실시간으로 보여주는 모니터링
+3. **인터랙티브 요소**: 사용자가 직접 조작하고 결과를 확인할 수 있는 기능
+4. **교육적 설명**: 각 요소에 대한 설명과 도움말 제공
+
+## 사용 예시
+
+```typescript
+// 페이지 컴포넌트 예시
+import { useMonitoringInfo, useSystemSummary } from '@/shared/api';
+import { ClusterVisualization } from '@/widgets/cluster-visualization';
+
+export const ClusterMonitoringPage = () => {
+  const { data: clusterInfo } = useMonitoringInfo(5000);
+  const { data: summary } = useSystemSummary(10000);
+
   return (
-    <Layout>
-      <h1>페이지 제목</h1>
-      <SomeWidget />
-      <SomeFeature />
-    </Layout>
+    <div className="p-6">
+      <h1>클러스터 모니터링</h1>
+      <ClusterVisualization 
+        clusterInfo={clusterInfo}
+        summary={summary}
+      />
+    </div>
   );
 };
 ```
 
-## 라우팅 사용 예시
-
-```tsx
-import { Route, Routes } from 'react-router-dom';
-import { DashboardPage } from '@/pages/dashboard';
-import { ContainerListPage, ContainerDetailsPage } from '@/pages/containers';
-import { ScalingPolicyListPage, CreateScalingPolicyPage } from '@/pages/scaling';
-import { ClusterTopologyPage } from '@/pages/cluster-topology';
-import { ServiceDeploymentPage } from '@/pages/service-deployment';
-
-export const AppRoutes = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<DashboardPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/containers" element={<ContainerListPage />} />
-      <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
-      <Route path="/scaling" element={<ScalingPolicyListPage />} />
-      <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
-      <Route path="/service-deployment" element={<ServiceDeploymentPage />} />
-    </Routes>
-  );
-};
-```
-
-## 의존성 규칙
-
-- 페이지는 어떤 계층에도 의존할 수 있습니다 (위젯, 기능, 엔티티, 공유).
-- 다른 계층은 페이지에 의존해서는 안 됩니다.
-- 페이지는 다른 페이지에 직접 의존해서는 안 됩니다 (라우팅을 통한 탐색만 가능).
-
-이 계층은 Feature-Sliced Design 아키텍처에서 `pages` 계층의 역할을 합니다. 
+모든 페이지는 교육적 가치를 제공하고 사용자가 쿠버네틱스 개념을 시각적으로 학습할 수 있도록 설계되어야 합니다. 

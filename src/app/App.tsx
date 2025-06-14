@@ -1,12 +1,11 @@
-import React from 'react';
-import { Providers } from './providers';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { ClusterMonitoringPage } from '@/pages/cluster-monitoring';
+import { ClusterTopologyPage } from '@/pages/cluster-topology';
 import { ContainerListPage } from '@/pages/containers';
 import { ContainerDetailsPage } from '@/pages/containers/container-details';
-import { ScalingPolicyPage } from '@/pages/scaling';
 import { DashboardPage } from '@/pages/dashboard';
-import { ClusterTopologyPage } from '@/pages/cluster-topology';
 import { ServiceDeploymentPage } from '@/pages/service-deployment';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Providers } from './providers';
 
 export const App = () => {
   return (
@@ -18,9 +17,9 @@ export const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/containers" element={<ContainerListPage />} />
             <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
-            <Route path="/scaling" element={<ScalingPolicyPage />} />
             <Route path="/cluster-topology" element={<ClusterTopologyPage />} />
             <Route path="/service-deployment" element={<ServiceDeploymentPage />} />
+            <Route path="/cluster-monitoring" element={<ClusterMonitoringPage />} />
           </Routes>
         </BrowserRouter>
       </Providers>

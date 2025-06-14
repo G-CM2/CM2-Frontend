@@ -1,12 +1,9 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { 
-  ContainerActionResponse, 
-  useContainer
-} from '@/shared/api';
 import { ContainerActionButton } from '@/features/container-control';
+import { useContainer } from '@/shared/api';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 export const ContainerDetailsPage = () => {
   const { containerId = '' } = useParams<{ containerId: string }>();
@@ -18,8 +15,8 @@ export const ContainerDetailsPage = () => {
     isError 
   } = useContainer(containerId);
 
-  const handleActionComplete = (response: ContainerActionResponse) => {
-    setActionMessage(`${response.action} 작업이 ${response.status === 'success' ? '성공적으로 완료되었습니다' : '실패했습니다'}.`);
+  const handleActionComplete = () => {
+    setActionMessage('컨테이너 액션 기능은 현재 지원되지 않습니다.');
   };
 
   const getStatusColor = (status?: string) => {

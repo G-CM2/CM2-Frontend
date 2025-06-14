@@ -1,72 +1,43 @@
-import { useState } from 'react';
-import { ContainerActionRequest, ContainerActionResponse, useContainerAction } from '@/shared/api';
 
 interface ContainerActionButtonProps {
   containerId: string;
   action: 'start' | 'stop' | 'restart' | 'pause' | 'unpause';
   label: string;
   variant?: 'primary' | 'secondary' | 'danger';
-  onActionComplete?: (response: ContainerActionResponse) => void;
+  onActionComplete?: () => void;
 }
 
 export const ContainerActionButton = ({
-  containerId,
   action,
   label,
   variant = 'primary',
-  onActionComplete,
 }: ContainerActionButtonProps) => {
-  const containerAction = useContainerAction();
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return isHovered
-          ? 'bg-blue-600 hover:bg-blue-700'
-          : 'bg-blue-500 hover:bg-blue-600';
+        return 'bg-gray-400 cursor-not-allowed';
       case 'secondary':
-        return isHovered
-          ? 'bg-gray-600 hover:bg-gray-700'
-          : 'bg-gray-500 hover:bg-gray-600';
+        return 'bg-gray-400 cursor-not-allowed';
       case 'danger':
-        return isHovered
-          ? 'bg-red-600 hover:bg-red-700'
-          : 'bg-red-500 hover:bg-red-600';
+        return 'bg-gray-400 cursor-not-allowed';
       default:
-        return isHovered
-          ? 'bg-blue-600 hover:bg-blue-700'
-          : 'bg-blue-500 hover:bg-blue-600';
+        return 'bg-gray-400 cursor-not-allowed';
     }
   };
 
   const handleClick = async () => {
-    try {
-      const actionData: ContainerActionRequest = { action };
-      const result = await containerAction.mutateAsync({ 
-        containerId, 
-        action: actionData 
-      });
-      
-      if (onActionComplete) {
-        onActionComplete(result);
-      }
-    } catch (error) {
-      console.error(`Error performing ${action} action:`, error);
-    }
+    // 컨테이너 액션 API가 명세서에 없어서 비활성화됨
+    console.log(`컨테이너 ${action} 액션은 현재 지원되지 않습니다.`);
   };
 
   return (
     <button
-      className={`w-full px-4 py-2 text-white rounded transition-colors ${getVariantClasses()} ${
-        containerAction.isPending ? 'opacity-70 cursor-not-allowed' : ''
-      }`}
+      className={`w-full px-4 py-2 text-white rounded transition-colors ${getVariantClasses()}`}
       onClick={handleClick}
-      disabled={containerAction.isPending}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      disabled={true}
+      title="현재 지원되지 않는 기능입니다"
     >
-      {containerAction.isPending ? '처리 중...' : label}
+      {label} (비활성화)
     </button>
   );
 }; 

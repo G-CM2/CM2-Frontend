@@ -1,10 +1,8 @@
-import { useState } from 'react';
-import { Layout } from '@/widgets/layout';
+import { useContainers, useSystemSummary } from '@/shared/api';
 import { Card } from '@/shared/ui/card/card';
-import { useQuery } from '@tanstack/react-query';
-import { systemApi } from '@/shared/api/system';
+import { Layout } from '@/widgets/layout';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useContainers } from '@/shared/api';
 
 export const ContainerListPage = () => {
   const [page, setPage] = useState(1);
@@ -15,11 +13,7 @@ export const ContainerListPage = () => {
     data: dashboardData,
     isLoading: dashboardLoading,
     error: dashboardError 
-  } = useQuery({
-    queryKey: ['dashboard-summary'],
-    queryFn: () => systemApi.getDashboardSummary(),
-    refetchInterval: 10000, // 10초마다 갱신
-  });
+  } = useSystemSummary();
 
   // 컨테이너 목록 조회
   const {
@@ -34,7 +28,7 @@ export const ContainerListPage = () => {
         return 'text-green-500';
       case 'stopped':
         return 'text-red-500';
-      case 'paused':
+      case 'error':
         return 'text-yellow-500';
       default:
         return 'text-gray-500';
@@ -47,7 +41,7 @@ export const ContainerListPage = () => {
         return 'bg-green-50 border-green-200';
       case 'stopped':
         return 'bg-red-50 border-red-200';
-      case 'paused':
+      case 'error':
         return 'bg-yellow-50 border-yellow-200';
       default:
         return 'bg-gray-50 border-gray-200';
@@ -84,8 +78,8 @@ export const ContainerListPage = () => {
                 <span className="text-gray-500 mt-2">중지됨</span>
               </div>
               <div className="flex flex-col items-center justify-center bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                <span className="text-3xl font-bold text-yellow-600">{dashboardData?.containers.paused}</span>
-                <span className="text-gray-500 mt-2">일시 중지됨</span>
+                <span className="text-3xl font-bold text-yellow-600">{dashboardData?.containers.error}</span>
+                <span className="text-gray-500 mt-2">오류</span>
               </div>
             </div>
           )}
