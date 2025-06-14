@@ -34,7 +34,8 @@ export const DashboardPage = () => {
   const { 
     data: systemSummary,
     isLoading: summaryLoading,
-    error: summaryError 
+    error: summaryError,
+    refetch: refetchSystemSummary
   } = useSystemSummary();
 
   const {
@@ -220,7 +221,10 @@ export const DashboardPage = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button 
-              onClick={() => refetchServices()}
+              onClick={() => {
+                refetchServices();
+                refetchSystemSummary();
+              }}
               disabled={isLoading}
               variant="outline"
               className="flex items-center gap-2"

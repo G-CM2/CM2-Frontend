@@ -1,12 +1,12 @@
 import type { Container, ContainerDetails } from '@/entities/container/types';
 import { http, HttpResponse } from 'msw';
 import type {
-    ClusterHealth,
-    ClusterNode,
-    ClusterNodesResponse,
-    ClusterStatus,
-    SimulateFailureRequest,
-    SimulateFailureResponse
+  ClusterHealth,
+  ClusterNode,
+  ClusterNodesResponse,
+  ClusterStatus,
+  SimulateFailureRequest,
+  SimulateFailureResponse
 } from '../api/cluster';
 import type { Service, SystemSummary } from '../api/services';
 
@@ -116,6 +116,21 @@ function initializeData() {
   }
 }
 
+// 기준값들 정의
+const BASE_RESOURCE_VALUES = {
+  cpu_usage: 45.2,
+  memory_usage: 78.5,
+  disk_usage: 62.1,
+};
+
+// 랜덤 보정 함수 (기준값의 ±10% 범위에서 랜덤 생성)
+function getRandomizedValue(baseValue: number, variationPercent: number = 10): number {
+  const variation = baseValue * (variationPercent / 100);
+  const randomOffset = (Math.random() - 0.5) * 2 * variation;
+  const result = baseValue + randomOffset;
+  return Math.max(0, Math.min(100, result)); // 0~100% 범위로 제한
+}
+
 // 시스템 요약 정보 업데이트
 function updateSystemSummary(): SystemSummary {
   const containers = Storage.get<Container[]>('CONTAINERS', []);
@@ -137,9 +152,9 @@ function updateSystemSummary(): SystemSummary {
       failed,
     },
     resources: {
-      cpu_usage: 45.2,
-      memory_usage: 78.5,
-      disk_usage: 62.1,
+      cpu_usage: getRandomizedValue(BASE_RESOURCE_VALUES.cpu_usage),
+      memory_usage: getRandomizedValue(BASE_RESOURCE_VALUES.memory_usage),
+      disk_usage: getRandomizedValue(BASE_RESOURCE_VALUES.disk_usage),
     },
     updated_at: new Date().toISOString(),
   };
