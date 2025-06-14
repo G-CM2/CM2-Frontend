@@ -1,45 +1,28 @@
-import type { Container } from '@/entities/container/types';
+import type { Container, ContainerDetails } from '@/entities/container/types';
 import apiClient from './api-client';
 
 /**
- * 컨테이너 목록 응답 인터페이스
+ * 컨테이너 API 함수들
  */
-export interface ContainersResponse {
-  total: number;
-  page: number;
-  limit: number;
-  containers: Container[];
-}
-
-// 컨테이너 API 함수 정의
 export const containersApi = {
   /**
-   * 컨테이너 목록 조회
+   * 컨테이너 목록 조회 (GET /containers)
    */
-  getContainers: async (page: number = 1, limit: number = 20) => {
+  async getContainers(): Promise<Container[]> {
     const response = await apiClient.get<Container[]>('/containers');
-    // 페이지네이션 시뮬레이션
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedContainers = response.data.slice(startIndex, endIndex);
-    
-    return {
-      total: response.data.length,
-      page,
-      limit,
-      containers: paginatedContainers
-    };
+    return response.data;
   },
 
   /**
-   * 컨테이너 상세 정보 조회
+   * 특정 컨테이너 상세 정보 조회 (GET /containers/{containerId})
    */
-  getContainer: async (id: string) => {
-    const response = await apiClient.get<Container[]>('/containers');
-    const container = response.data.find(c => c.id === id);
-    if (!container) {
-      throw new Error('Container not found');
-    }
-    return container;
-  }
-}; 
+  async getContainer(containerId: string): Promise<ContainerDetails> {
+    const response = await apiClient.get<ContainerDetails>(`/containers/${containerId}`);
+    return response.data;
+  },
+};
+
+// 하위 호환성을 위한 개별 함수들
+export const { getContainers, getContainer } = containersApi;
+
+export default containersApi; 

@@ -5,22 +5,22 @@ import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    Activity,
-    AlertTriangle,
-    Container,
-    Database,
-    Globe,
-    Minus,
-    Monitor,
-    Network,
-    Play,
-    Plus,
-    RefreshCw,
-    Server,
-    Settings,
-    Square,
-    Trash2,
-    Zap
+  Activity,
+  AlertTriangle,
+  Container,
+  Database,
+  Globe,
+  Minus,
+  Monitor,
+  Network,
+  Play,
+  Plus,
+  RefreshCw,
+  Server,
+  Settings,
+  Square,
+  Trash2,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -96,16 +96,10 @@ export const ServicesPage = () => {
     const request: CreateServiceRequest = {
       name: newServiceName,
       image: newServiceImage,
-      mode: 'replicated',
       replicas: 1,
       ports: newServiceImage.includes('nginx') ? [
-        { protocol: 'tcp', targetPort: 80, publishedPort: 8080 }
-      ] : [],
-      networks: ['default'],
-      labels: {
-        'created-by': 'cm2-dashboard',
-        'service-type': newServiceImage.includes('nginx') ? 'web' : 'application'
-      }
+        { internal: 80, external: 8080 }
+      ] : []
     };
 
     createServiceMutation.mutate(request);
@@ -426,7 +420,7 @@ export const ServicesPage = () => {
                           <div className="text-gray-600 mt-1">
                             {service.ports.map((p, idx) => (
                               <div key={idx} className="text-xs">
-                                {p.publishedPort ? `${p.publishedPort}:${p.targetPort}` : p.targetPort} ({p.protocol})
+                                {p.external}:{p.internal}
                               </div>
                             ))}
                           </div>

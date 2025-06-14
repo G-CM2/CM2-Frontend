@@ -1,13 +1,9 @@
 import { useContainers, useSystemSummary } from '@/shared/api';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export const ContainerListPage = () => {
-  const [page, setPage] = useState(1);
-  const [limit] = useState(20);
-
   // 대시보드 요약 정보 조회
   const { 
     data: dashboardData,
@@ -20,7 +16,7 @@ export const ContainerListPage = () => {
     data: containersData,
     isLoading: containersLoading,
     isError: containersError
-  } = useContainers(page, limit);
+  } = useContainers();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -95,7 +91,7 @@ export const ContainerListPage = () => {
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">컨테이너 목록을 불러오는 중 오류가 발생했습니다.</span>
             </div>
-          ) : !containersData || containersData.containers.length === 0 ? (
+          ) : !containersData || containersData.length === 0 ? (
             <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-gray-500 dark:text-gray-400">컨테이너가 없습니다.</p>
             </div>
@@ -126,7 +122,7 @@ export const ContainerListPage = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {containersData.containers.map((container) => (
+                    {containersData.map((container) => (
                       <tr key={container.id} className={`${getBackgroundColor(container.status)}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{container.name}</div>
@@ -160,32 +156,7 @@ export const ContainerListPage = () => {
                 </table>
               </div>
               
-              {/* 페이지네이션 */}
-              {containersData.total > 0 && (
-                <div className="flex justify-center mt-6">
-                  <nav className="inline-flex rounded-md shadow">
-                    <button 
-                      className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-                      onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                      disabled={page === 1}
-                    >
-                      이전
-                    </button>
-                    <span className="px-3 py-2 border-t border-b border-gray-300 bg-white text-gray-700">
-                      {page} / {Math.ceil(containersData.total / limit)}
-                    </span>
-                    <button 
-                      className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-                      onClick={() => setPage(prev => (
-                        prev + 1 <= Math.ceil(containersData.total / limit) ? prev + 1 : prev
-                      ))}
-                      disabled={page >= Math.ceil(containersData.total / limit)}
-                    >
-                      다음
-                    </button>
-                  </nav>
-                </div>
-              )}
+
             </>
           )}
         </Card>

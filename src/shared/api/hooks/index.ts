@@ -8,8 +8,7 @@ import {
     useClusterNodes,
     useClusterStatus,
     useDrainNode,
-    useSimulateFailure,
-    useUpdateNodeAvailability
+    useSimulateFailure
 } from './use-cluster';
 
 import {
@@ -25,9 +24,7 @@ import {
 
 // 컨테이너 관련 훅 내보내기
 export {
-    QUERY_KEYS as CONTAINERS_QUERY_KEYS,
-    useContainer,
-    useContainers
+    CONTAINERS_QUERY_KEYS, useContainer, useContainers
 } from './use-containers';
 
 // 클러스터 관련 훅 내보내기
@@ -36,13 +33,12 @@ export {
     useClusterNodes,
     useClusterStatus,
     useDrainNode,
-    useSimulateFailure,
-    useUpdateNodeAvailability
+    useSimulateFailure
 } from './use-cluster';
 
 // 서비스 관련 훅 내보내기
 export {
-    useCreateService,
+    SERVICES_QUERY_KEYS, useCreateService,
     useDeleteService,
     useScaleService,
     useService,
@@ -51,7 +47,7 @@ export {
 } from './use-services';
 
 // 시스템 요약 정보는 서비스 API에서 제공
-export { useSystemSummary } from './use-services';
+export { useSystemSummary } from './use-system-summary';
 
 // 모든 훅을 하나의 객체로 내보내기 (선택적)
 export const hooks = {
@@ -65,7 +61,6 @@ export const hooks = {
   useClusterHealth,
   useDrainNode,
   useSimulateFailure,
-  useUpdateNodeAvailability,
   
   // 서비스
   useServices,

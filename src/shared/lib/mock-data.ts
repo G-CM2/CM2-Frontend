@@ -9,127 +9,50 @@ export const INITIAL_SERVICES: Service[] = [
     id: 'service-1',
     name: 'nginx-web',
     image: 'nginx:latest',
-    mode: 'replicated',
     replicas: 3,
     status: 'running',
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z',
-    labels: { 'service.type': 'web' },
-    ports: [{ protocol: 'tcp', targetPort: 80, publishedPort: 8080, publishMode: 'ingress' }],
-    networks: ['web-network'],
-    constraints: [],
-    resources: {
-      limits: { nanoCpus: 100000000, memoryBytes: 536870912 },
-      reservations: { nanoCpus: 50000000, memoryBytes: 268435456 }
-    },
-    updateConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    rollbackConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    endpoint: {
-      spec: {
-        mode: 'vip',
-        ports: [{ protocol: 'tcp', targetPort: 80, publishedPort: 8080, publishMode: 'ingress' }]
-      },
-      ports: [{ protocol: 'tcp', targetPort: 80, publishedPort: 8080, publishMode: 'ingress' }],
-      virtualIPs: [{ networkID: 'web-network', addr: '10.0.1.2/24' }]
-    }
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+    ports: [
+      { internal: 80, external: 8080 },
+      { internal: 443, external: 8443 }
+    ],
+    cpu_usage: 12.5,
+    memory_usage: 256,
+    networks: ['default'],
+    mode: 'replicated',
   },
   {
     id: 'service-2',
     name: 'redis-cache',
     image: 'redis:alpine',
-    mode: 'replicated',
     replicas: 1,
     status: 'running',
-    createdAt: '2024-01-15T10:05:00Z',
-    updatedAt: '2024-01-15T10:05:00Z',
-    labels: { 'service.type': 'cache' },
-    ports: [{ protocol: 'tcp', targetPort: 6379, publishedPort: 6379, publishMode: 'ingress' }],
-    networks: ['backend-network'],
-    constraints: [],
-    resources: {
-      limits: { nanoCpus: 100000000, memoryBytes: 268435456 },
-      reservations: { nanoCpus: 25000000, memoryBytes: 134217728 }
-    },
-    updateConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    rollbackConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    endpoint: {
-      spec: {
-        mode: 'vip',
-        ports: [{ protocol: 'tcp', targetPort: 6379, publishedPort: 6379, publishMode: 'ingress' }]
-      },
-      ports: [{ protocol: 'tcp', targetPort: 6379, publishedPort: 6379, publishMode: 'ingress' }],
-      virtualIPs: [{ networkID: 'backend-network', addr: '10.0.2.2/24' }]
-    }
+    created_at: '2024-01-15T10:05:00Z',
+    updated_at: '2024-01-15T10:05:00Z',
+    ports: [
+      { internal: 6379, external: 6379 }
+    ],
+    cpu_usage: 8.2,
+    memory_usage: 128,
+    networks: ['default'],
+    mode: 'replicated',
   },
   {
     id: 'service-3',
     name: 'api-server',
     image: 'node:18-alpine',
-    mode: 'replicated',
     replicas: 2,
-    status: 'failed',
-    createdAt: '2024-01-15T10:10:00Z',
-    updatedAt: '2024-01-15T10:10:00Z',
-    labels: { 'service.type': 'api' },
-    ports: [{ protocol: 'tcp', targetPort: 3000, publishedPort: 3000, publishMode: 'ingress' }],
-    networks: ['backend-network'],
-    constraints: [],
-    resources: {
-      limits: { nanoCpus: 200000000, memoryBytes: 1073741824 },
-      reservations: { nanoCpus: 100000000, memoryBytes: 536870912 }
-    },
-    updateConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    rollbackConfig: {
-      parallelism: 1,
-      delay: '10s',
-      failureAction: 'pause',
-      monitor: '5s',
-      maxFailureRatio: 0,
-      order: 'stop-first'
-    },
-    endpoint: {
-      spec: {
-        mode: 'vip',
-        ports: [{ protocol: 'tcp', targetPort: 3000, publishedPort: 3000, publishMode: 'ingress' }]
-      },
-      ports: [{ protocol: 'tcp', targetPort: 3000, publishedPort: 3000, publishMode: 'ingress' }],
-      virtualIPs: [{ networkID: 'backend-network', addr: '10.0.2.3/24' }]
-    }
+    status: 'stopped',
+    created_at: '2024-01-15T10:10:00Z',
+    updated_at: '2024-01-15T10:10:00Z',
+    ports: [
+      { internal: 3000, external: 3000 }
+    ],
+    cpu_usage: 0,
+    memory_usage: 0,
+    networks: ['default'],
+    mode: 'replicated',
   }
 ];
 
@@ -204,20 +127,22 @@ export const INITIAL_CONTAINERS: Container[] = [
  */
 export const INITIAL_SYSTEM_SUMMARY: SystemSummary = {
   status: {
-    indicator: 'warning',
-    description: '일부 서비스에 문제가 있습니다'
+    indicator: 'normal',
+    description: '시스템이 정상적으로 작동 중입니다'
   },
   containers: {
     total: 5,
     running: 4,
     stopped: 1,
+    error: 0,
     failed: 0
   },
   resources: {
-    cpu_usage: 53,
-    memory_usage: 449,
-    disk_usage: 25
-  }
+    cpu_usage: 53.2,
+    memory_usage: 67.8,
+    disk_usage: 25.4
+  },
+  updated_at: '2024-01-15T10:15:00Z'
 };
 
 /**

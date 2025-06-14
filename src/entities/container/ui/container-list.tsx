@@ -1,53 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { containersApi } from '@/shared/api';
-import { Container } from '@/entities/container/types';
+import { useContainers } from '@/shared/api/hooks/use-containers';
 import { Card } from '@/shared/ui/card/card';
 import { Link } from 'react-router-dom';
 
 export const ContainerList = () => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [containers, setContainers] = useState<Container[]>([]);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    limit: 20
-  });
-
-  useEffect(() => {
-    const fetchContainers = async () => {
-      try {
-        setLoading(true);
-        const response = await containersApi.getContainers();
-        
-        // API Container 타입에서 entity Container 타입으로 변환
-        const mappedContainers: Container[] = response.containers.map(apiContainer => ({
-          id: apiContainer.id,
-          name: apiContainer.name,
-          image: apiContainer.image,
-          status: apiContainer.status as 'running' | 'stopped' | 'paused',
-          created: apiContainer.created_at,
-          ports: apiContainer.ports ? apiContainer.ports.map(p => `${p.external}:${p.internal}`) : [],
-          cpu: apiContainer.cpu_usage,
-          memory: apiContainer.memory_usage
-        }));
-        
-        setContainers(mappedContainers);
-        setPagination(prev => ({
-          ...prev,
-          total: response.total
-        }));
-        setError(null);
-      } catch (err) {
-        setError('컨테이너 목록을 불러오는 중 오류가 발생했습니다.');
-        console.error('Error fetching containers:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContainers();
-  }, [pagination.page, pagination.limit]);
+  const { data: containers, isLoading, error } = useContainers();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,7 +18,7 @@ export const ContainerList = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
@@ -73,7 +29,7 @@ export const ContainerList = () => {
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <span className="block sm:inline">{error}</span>
+        <span className="block sm:inline">컨테이너 목록을 불러오는 중 오류가 발생했습니다.</span>
       </div>
     );
   }
@@ -82,7 +38,7 @@ export const ContainerList = () => {
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold mb-4">컨테이너 목록</h2>
       
-      {containers.length === 0 ? (
+      {!containers || containers.length === 0 ? (
         <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <p className="text-gray-500 dark:text-gray-400">컨테이너가 없습니다.</p>
         </div>
@@ -101,11 +57,11 @@ export const ContainerList = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">CPU:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{container.cpu}%</span>
+                  <span className="text-gray-700 dark:text-gray-300">{container.cpu_usage}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">메모리:</span>
-                  <span className="text-gray-700 dark:text-gray-300">{container.memory} MB</span>
+                  <span className="text-gray-700 dark:text-gray-300">{container.memory_usage} MB</span>
                 </div>
                 <div className="mt-4">
                   <Link 
@@ -118,34 +74,6 @@ export const ContainerList = () => {
               </div>
             </Card>
           ))}
-        </div>
-      )}
-
-      {/* 페이지네이션 컴포넌트 */}
-      {containers.length > 0 && (
-        <div className="flex justify-center mt-6">
-          <nav className="inline-flex rounded-md shadow">
-            <button 
-              className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-              onClick={() => setPagination(prev => ({ ...prev, page: Math.max(prev.page - 1, 1) }))}
-              disabled={pagination.page === 1}
-            >
-              이전
-            </button>
-            <span className="px-3 py-2 border-t border-b border-gray-300 bg-white text-gray-700">
-              {pagination.page} / {Math.ceil(pagination.total / pagination.limit)}
-            </span>
-            <button 
-              className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-              onClick={() => setPagination(prev => ({ 
-                ...prev, 
-                page: prev.page + 1 <= Math.ceil(prev.total / prev.limit) ? prev.page + 1 : prev.page 
-              }))}
-              disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
-            >
-              다음
-            </button>
-          </nav>
         </div>
       )}
     </div>

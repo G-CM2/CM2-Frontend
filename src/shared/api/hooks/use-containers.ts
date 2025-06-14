@@ -1,30 +1,33 @@
+import type { Container } from '@/entities/container/types';
 import { useQuery } from '@tanstack/react-query';
 import { containersApi } from '../containers';
 
-export const QUERY_KEYS = {
+export const CONTAINERS_QUERY_KEYS = {
   containers: 'containers',
   container: 'container'
-};
+} as const;
 
 /**
- * 컨테이너 목록을 조회하는 훅
+ * 컨테이너 목록 조회 훅
  */
-export const useContainers = (page: number = 1, limit: number = 20, refreshInterval?: number) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.containers, page, limit],
-    queryFn: () => containersApi.getContainers(page, limit),
-    refetchInterval: refreshInterval
+export const useContainers = () => {
+  return useQuery<Container[]>({
+    queryKey: [CONTAINERS_QUERY_KEYS.containers],
+    queryFn: () => containersApi.getContainers(),
+    staleTime: 30000, // 30초
+    gcTime: 300000 // 5분
   });
 };
 
 /**
- * 특정 컨테이너의 상세 정보를 조회하는 훅
+ * 특정 컨테이너 조회 훅
  */
-export const useContainer = (id: string, refreshInterval?: number) => {
+export const useContainer = (containerId: string) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.container, id],
-    queryFn: () => containersApi.getContainer(id),
-    enabled: !!id,
-    refetchInterval: refreshInterval
+    queryKey: [CONTAINERS_QUERY_KEYS.container, containerId],
+    queryFn: () => containersApi.getContainer(containerId),
+    enabled: !!containerId,
+    staleTime: 30000, // 30초
+    gcTime: 300000 // 5분
   });
 }; 

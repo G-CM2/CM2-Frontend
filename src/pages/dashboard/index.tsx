@@ -34,7 +34,7 @@ export const DashboardPage = () => {
     data: systemSummary,
     isLoading: summaryLoading,
     error: summaryError 
-  } = useSystemSummary(10000);
+  } = useSystemSummary();
 
   const {
     data: services,
@@ -451,7 +451,7 @@ export const DashboardPage = () => {
                           <div className="text-gray-600 mt-1">
                             {service.ports.map((p, idx) => (
                               <div key={idx} className="text-xs">
-                                {p.publishedPort ? `${p.publishedPort}:${p.targetPort}` : p.targetPort} ({p.protocol})
+                                {p.external}:{p.internal}
                               </div>
                             ))}
                           </div>
