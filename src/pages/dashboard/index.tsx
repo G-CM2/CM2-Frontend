@@ -1,33 +1,35 @@
 import { Button } from '@/components/ui/button';
-import { useServices, useSystemSummary } from '@/shared/api';
+import { useScaleService, useServices, useSystemSummary, useUpdateService } from '@/shared/api';
 import { Service } from '@/shared/api/services';
 import { useToastContext } from '@/shared/contexts';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import {
-    Activity,
-    AlertTriangle,
-    Container,
-    Database,
-    Globe,
-    HardDrive,
-    Layers,
-    Minus,
-    Monitor,
-    Play,
-    Plus,
-    RefreshCw,
-    RotateCcw,
-    Server,
-    Settings,
-    Square,
-    Zap
+  Activity,
+  AlertTriangle,
+  Container,
+  Database,
+  Globe,
+  HardDrive,
+  Layers,
+  Minus,
+  Monitor,
+  Play,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Server,
+  Settings,
+  Square,
+  Zap
 } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const { showSuccess, showError, showInfo } = useToastContext();
+  const [loadingServices, setLoadingServices] = useState<Record<string, string | null>>({});
   
   const { 
     data: systemSummary,
@@ -42,47 +44,70 @@ export const DashboardPage = () => {
     refetch: refetchServices
   } = useServices();
 
+  // 스케일링 및 업데이트 뮤테이션
+  const scaleServiceMutation = useScaleService();
+  const updateServiceMutation = useUpdateService();
+
   const isLoading = summaryLoading || servicesLoading;
 
   // 서비스 액션 핸들러
   const handleServiceAction = async (service: Service, action: string) => {
+    setLoadingServices(prev => ({ ...prev, [service.id]: action }));
+    
     try {
       switch (action) {
         case 'scale-up':
           showInfo(`${service.name} 서비스를 스케일 업 중입니다...`);
-          setTimeout(() => {
-            showSuccess(`${service.name} 서비스가 ${(service.replicas || 1) + 1}개 레플리카로 확장되었습니다.`);
-          }, 2000);
+          await scaleServiceMutation.mutateAsync({
+            id: service.id,
+            request: { replicas: (service.replicas || 1) + 1 }
+          });
+          showSuccess(`${service.name} 서비스가 ${(service.replicas || 1) + 1}개 레플리카로 확장되었습니다.`);
           break;
         case 'scale-down':
           if ((service.replicas || 1) > 1) {
             showInfo(`${service.name} 서비스를 스케일 다운 중입니다...`);
-            setTimeout(() => {
-              showSuccess(`${service.name} 서비스가 ${(service.replicas || 1) - 1}개 레플리카로 축소되었습니다.`);
-            }, 2000);
+            await scaleServiceMutation.mutateAsync({
+              id: service.id,
+              request: { replicas: (service.replicas || 1) - 1 }
+            });
+            showSuccess(`${service.name} 서비스가 ${(service.replicas || 1) - 1}개 레플리카로 축소되었습니다.`);
           }
           break;
         case 'restart':
           showInfo(`${service.name} 서비스를 재시작 중입니다...`);
-          setTimeout(() => {
-            showSuccess(`${service.name} 서비스가 성공적으로 재시작되었습니다.`);
-          }, 3000);
+          // 재시작은 롤링 업데이트로 구현
+          await updateServiceMutation.mutateAsync({
+            id: service.id,
+            request: { 
+              image: service.image
+            }
+          });
+          showSuccess(`${service.name} 서비스가 성공적으로 재시작되었습니다.`);
           break;
         case 'rolling-update':
           showInfo(`${service.name} 서비스의 롤링 업데이트를 시작합니다...`);
-          setTimeout(() => {
-            showSuccess(`${service.name} 서비스가 성공적으로 업데이트되었습니다.`);
-          }, 4000);
+          await updateServiceMutation.mutateAsync({
+            id: service.id,
+            request: { 
+              image: service.image
+            }
+          });
+          showSuccess(`${service.name} 서비스가 성공적으로 업데이트되었습니다.`);
           break;
         case 'troubleshoot':
           showInfo(`${service.name} 서비스 문제를 진단 중입니다...`);
           setTimeout(() => {
             showSuccess(`${service.name} 서비스 문제가 해결되었습니다.`);
+            setLoadingServices(prev => ({ ...prev, [service.id]: null }));
           }, 3000);
-          break;
+          return; // setTimeout 사용으로 인해 early return
       }
-    } catch {
+    } catch (error) {
+      console.error('Service action error:', error);
       showError('작업 중 오류가 발생했습니다.');
+    } finally {
+      setLoadingServices(prev => ({ ...prev, [service.id]: null }));
     }
   };
 
@@ -420,21 +445,34 @@ export const DashboardPage = () => {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleServiceAction(service, 'scale-down')}
-                          disabled={(service.replicas || 1) <= 1}
+                          disabled={(service.replicas || 1) <= 1 || loadingServices[service.id] === 'scale-down'}
                           className="h-8 w-8 p-0"
                         >
-                          <Minus className="w-4 h-4" />
+                          {loadingServices[service.id] === 'scale-down' ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Minus className="w-4 h-4" />
+                          )}
                         </Button>
                         <span className="px-2 text-sm font-medium min-w-[2rem] text-center">
-                          {service.replicas || 1}
+                          {loadingServices[service.id] === 'scale-up' || loadingServices[service.id] === 'scale-down' ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            service.replicas || 1
+                          )}
                         </span>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleServiceAction(service, 'scale-up')}
+                          disabled={loadingServices[service.id] === 'scale-up'}
                           className="h-8 w-8 p-0"
                         >
-                          <Plus className="w-4 h-4" />
+                          {loadingServices[service.id] === 'scale-up' ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Plus className="w-4 h-4" />
+                          )}
                         </Button>
                       </div>
 
@@ -443,9 +481,14 @@ export const DashboardPage = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handleServiceAction(service, 'restart')}
+                        disabled={loadingServices[service.id] === 'restart'}
                         className="flex items-center gap-2"
                       >
-                        <RefreshCw className="w-4 h-4" />
+                        {loadingServices[service.id] === 'restart' ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-4 h-4" />
+                        )}
                         재시작
                       </Button>
 
@@ -454,9 +497,14 @@ export const DashboardPage = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleServiceAction(service, 'troubleshoot')}
+                          disabled={loadingServices[service.id] === 'troubleshoot'}
                           className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
                         >
-                          <Settings className="w-4 h-4" />
+                          {loadingServices[service.id] === 'troubleshoot' ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Settings className="w-4 h-4" />
+                          )}
                           문제 해결
                         </Button>
                       )}
@@ -466,9 +514,14 @@ export const DashboardPage = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleServiceAction(service, 'rolling-update')}
+                          disabled={loadingServices[service.id] === 'rolling-update'}
                           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                         >
-                          <RotateCcw className="w-4 h-4" />
+                          {loadingServices[service.id] === 'rolling-update' ? (
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <RotateCcw className="w-4 h-4" />
+                          )}
                           업데이트
                         </Button>
                       )}
