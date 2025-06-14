@@ -1,10 +1,10 @@
+import type { ClusterNode } from '@/shared/lib/mock-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     clusterApi,
     ClusterHealth,
     ClusterStatus,
     FailureSimulationRequest,
-    Node,
     NodeDrainRequest
 } from '../cluster';
 
@@ -15,12 +15,13 @@ export const CLUSTER_QUERY_KEYS = {
 };
 
 /**
- * 노드 목록 조회 훅
+ * 클러스터 노드 목록 조회 훅
  */
-export const useNodes = () => {
-  return useQuery<Node[]>({
+export const useClusterNodes = (refreshInterval?: number) => {
+  return useQuery<ClusterNode[]>({
     queryKey: [CLUSTER_QUERY_KEYS.nodes],
     queryFn: clusterApi.getNodes,
+    refetchInterval: refreshInterval,
     staleTime: 30000, // 30초
     gcTime: 300000 // 5분
   });
@@ -82,6 +83,27 @@ export const useSimulateFailure = () => {
       queryClient.invalidateQueries({ queryKey: [CLUSTER_QUERY_KEYS.nodes] });
       queryClient.invalidateQueries({ queryKey: [CLUSTER_QUERY_KEYS.status] });
       queryClient.invalidateQueries({ queryKey: [CLUSTER_QUERY_KEYS.health] });
+    }
+  });
+};
+
+/**
+ * 노드 가용성 변경 훅
+ */
+export const useUpdateNodeAvailability = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ 
+      nodeId, 
+      availability 
+    }: { 
+      nodeId: string; 
+      availability: 'active' | 'pause' | 'drain' 
+    }) => clusterApi.updateNodeAvailability(nodeId, availability),
+    onSuccess: () => {
+      // 노드 목록 재조회
+      queryClient.invalidateQueries({ queryKey: [CLUSTER_QUERY_KEYS.nodes] });
     }
   });
 }; 

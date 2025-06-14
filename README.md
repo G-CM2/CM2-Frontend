@@ -146,6 +146,8 @@ Docker 컨테이너 관리를 위한 교육용 대시보드 프론트엔드 애�
 - **아키텍처**: Feature-Sliced Design (FSD)
 - **빌드 도구**: Vite
 - **라우팅**: React Router
+- **Mock API**: MSW (Mock Service Worker)
+- **데이터 영속성**: localStorage
 
 ## 📁 프로젝트 구조
 
@@ -164,21 +166,29 @@ src/
     └── ui/                 # 공통 UI 컴포넌트들
 ```
 
-## 🔗 API 연동
+## 🔗 데이터 관리
 
-이 프론트엔드는 다음 백엔드 API와 연동됩니다:
+이 애플리케이션은 **MSW(Mock Service Worker)**와 **localStorage**를 사용하여 데이터를 관리합니다:
 
-- **Base URL**: `http://localhost:8080/`
-- **모니터링 엔드포인트**:
-  - `GET /` - 클러스터 정보 조회
-  - `GET /summary` - 시스템 요약 정보
-- **클러스터 관리**:
-  - `GET /cluster/nodes` - 노드 목록
-  - `GET /cluster/status` - 클러스터 상태
-  - `GET /cluster/health` - 헬스체크
+### 🎭 Mock API (MSW)
+- **서비스 관리**: 
+  - `GET /api/services` - 서비스 목록 조회
+  - `POST /api/services` - 서비스 생성
+  - `PATCH /api/services/:id/scale` - 서비스 스케일링
+  - `DELETE /api/services/:id` - 서비스 삭제
+- **시스템 정보**:
+  - `GET /api/summary` - 시스템 요약 정보
 - **컨테이너 관리**:
-  - `GET /containers` - 컨테이너 목록
-  - `GET /containers/{id}` - 컨테이너 상세 정보
+  - `GET /api/containers` - 컨테이너 목록
+- **클러스터 관리**:
+  - `GET /api/cluster/nodes` - 클러스터 노드 목록
+  - `PATCH /api/cluster/nodes/:id/availability` - 노드 가용성 변경
+
+### 💾 데이터 영속성 (localStorage)
+- **자동 저장**: 모든 데이터 변경사항이 localStorage에 자동 저장
+- **페이지 새로고침 유지**: 브라우저를 새로고침해도 데이터가 유지됨
+- **초기 데이터**: 첫 방문 시 미리 정의된 샘플 데이터로 초기화
+- **실시간 동기화**: UI 변경사항이 즉시 localStorage에 반영
 
 ## 🎓 교육적 특징
 

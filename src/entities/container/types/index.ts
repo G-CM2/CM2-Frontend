@@ -7,4 +7,6 @@ export interface Container {
   ports: string[];
   cpu: number;
   memory: number;
+  cpu_usage: number;
+  memory_usage: number;
 } 

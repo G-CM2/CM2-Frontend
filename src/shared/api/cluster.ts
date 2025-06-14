@@ -1,3 +1,4 @@
+import type { ClusterNode } from '@/shared/lib/mock-data';
 import apiClient from './api-client';
 
 /**
@@ -113,10 +114,10 @@ export interface NodeDrainResponse {
  */
 export const clusterApi = {
   /**
-   * 노드 목록 조회
+   * 클러스터 노드 목록 조회
    */
-  async getNodes(): Promise<Node[]> {
-    const response = await apiClient.get<Node[]>('/cluster/nodes');
+  async getNodes(): Promise<ClusterNode[]> {
+    const response = await apiClient.get<ClusterNode[]>('/cluster/nodes');
     return response.data;
   },
 
@@ -149,6 +150,20 @@ export const clusterApi = {
    */
   async simulateFailure(request: FailureSimulationRequest): Promise<FailureSimulationResponse> {
     const response = await apiClient.post<FailureSimulationResponse>('/cluster/simulate/failure', request);
+    return response.data;
+  },
+
+  /**
+   * 노드 가용성 변경
+   */
+  async updateNodeAvailability(
+    nodeId: string, 
+    availability: 'active' | 'pause' | 'drain'
+  ): Promise<ClusterNode> {
+    const response = await apiClient.patch<ClusterNode>(
+      `/cluster/nodes/${nodeId}/availability`,
+      { availability }
+    );
     return response.data;
   }
 };

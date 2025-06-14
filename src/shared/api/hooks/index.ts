@@ -5,10 +5,11 @@ import {
 
 import {
     useClusterHealth,
+    useClusterNodes,
     useClusterStatus,
     useDrainNode,
-    useNodes,
-    useSimulateFailure
+    useSimulateFailure,
+    useUpdateNodeAvailability
 } from './use-cluster';
 
 import {
@@ -20,19 +21,23 @@ import {
     useUpdateService
 } from './use-services';
 
+
+
 // 컨테이너 관련 훅 내보내기
 export {
-    QUERY_KEYS as CONTAINERS_QUERY_KEYS, useContainer,
+    QUERY_KEYS as CONTAINERS_QUERY_KEYS,
+    useContainer,
     useContainers
 } from './use-containers';
 
 // 클러스터 관련 훅 내보내기
 export {
     useClusterHealth,
+    useClusterNodes,
     useClusterStatus,
     useDrainNode,
-    useNodes,
-    useSimulateFailure
+    useSimulateFailure,
+    useUpdateNodeAvailability
 } from './use-cluster';
 
 // 서비스 관련 훅 내보내기
@@ -55,11 +60,12 @@ export const hooks = {
   useContainer,
   
   // 클러스터
-  useNodes,
+  useClusterNodes,
   useClusterStatus,
   useClusterHealth,
   useDrainNode,
   useSimulateFailure,
+  useUpdateNodeAvailability,
   
   // 서비스
   useServices,
