@@ -6,10 +6,10 @@ import {
     useDrainNode,
     useSimulateFailure
 } from '@/shared/api/hooks/use-cluster';
+import { useToastContext } from '@/shared/contexts';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import {
-    Activity,
     AlertTriangle,
     CheckCircle,
     Crown,
@@ -19,10 +19,9 @@ import {
     Server,
     WifiOff
 } from 'lucide-react';
-import { useState } from 'react';
 
 export const ClusterPage = () => {
-  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const { showSuccess, showError, showInfo } = useToastContext();
 
   const {
     data: clusterHealth,
@@ -52,38 +51,36 @@ export const ClusterPage = () => {
   const error = healthError || nodesError || statusError;
 
   const handleNodeAction = async (nodeId: string, action: string) => {
-    setActionMessage(`노드 ${nodeId}에서 ${action} 작업을 실행 중입니다...`);
+    showInfo(`노드 ${nodeId}에서 ${action} 작업을 실행 중입니다...`);
     
     try {
       switch (action) {
         case 'drain':
           await drainNodeMutation.mutateAsync(nodeId);
-          setActionMessage(`노드가 드레인 모드로 전환되었습니다.`);
+          showSuccess(`노드가 드레인 모드로 전환되었습니다.`);
           break;
         case 'activate':
           await simulateFailureMutation.mutateAsync({ 
             nodeId, 
             failureType: 'activate' 
           });
-          setActionMessage(`노드가 활성화되었습니다.`);
+          showSuccess(`노드가 활성화되었습니다.`);
           break;
         case 'simulate-drain':
           await simulateFailureMutation.mutateAsync({ 
             nodeId, 
             failureType: 'drain' 
           });
-          setActionMessage(`노드 드레인 시뮬레이션이 실행되었습니다.`);
+          showSuccess(`노드 드레인 시뮬레이션이 실행되었습니다.`);
           break;
         case 'inspect':
-          setActionMessage(`노드 상세 정보를 확인했습니다.`);
+          showSuccess(`노드 상세 정보를 확인했습니다.`);
           break;
         default:
-          setActionMessage(`${action} 작업이 완료되었습니다.`);
+          showSuccess(`${action} 작업이 완료되었습니다.`);
       }
-      setTimeout(() => setActionMessage(null), 3000);
     } catch {
-      setActionMessage('작업 중 오류가 발생했습니다.');
-      setTimeout(() => setActionMessage(null), 3000);
+      showError('작업 중 오류가 발생했습니다.');
     }
   };
 
@@ -177,16 +174,6 @@ export const ClusterPage = () => {
           </Button>
         </div>
 
-        {/* 액션 메시지 */}
-        {actionMessage && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-600" />
-              <span className="text-blue-800">{actionMessage}</span>
-            </div>
-          </div>
-        )}
-
         {/* 클러스터 헬스 개요 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6">
@@ -209,7 +196,7 @@ export const ClusterPage = () => {
                   {isLoading ? '-' : clusterHealth?.activeManagers || 0}
                 </p>
               </div>
-              <Crown className="w-8 h-8 text-yellow-600" />
+              <Crown className="w-8 h-8 text-green-600" />
             </div>
           </Card>
 
@@ -229,14 +216,14 @@ export const ClusterPage = () => {
         {/* 클러스터 상태 정보 */}
         {clusterStatus && (
           <Card className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">클러스터 상태</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">클러스터 상태</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-600">클러스터 ID</p>
                 <p className="text-sm text-gray-900 font-mono">{clusterStatus.clusterID}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">이름</p>
+                <p className="text-sm font-medium text-gray-600">클러스터 이름</p>
                 <p className="text-sm text-gray-900">{clusterStatus.name}</p>
               </div>
               <div>
@@ -252,27 +239,29 @@ export const ClusterPage = () => {
         )}
 
         {/* 노드 목록 */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">노드 목록</h2>
+        <Card className="overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold">클러스터 노드</h3>
+          </div>
           
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-600">노드 정보를 불러오는 중...</span>
+            <div className="p-8 text-center">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600">노드 정보를 불러오는 중...</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {clusterNodes?.nodes.map((node) => (
-                <div key={node.id} className="border border-gray-200 rounded-lg p-4">
+          ) : clusterNodes && clusterNodes.nodes && clusterNodes.nodes.length > 0 ? (
+            <div className="divide-y divide-gray-200">
+              {clusterNodes.nodes.map((node) => (
+                <div key={node.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       {getRoleIcon(node.managerStatus)}
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900">{node.hostname}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getNodeStatusColor(node.status)}`}>
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-semibold text-gray-900">{node.hostname}</h4>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getNodeStatusColor(node.status)}`}>
                             {getNodeStatusIcon(node.status)}
-                            <span className="ml-1">{node.status}</span>
+                            {node.status}
                           </span>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAvailabilityColor(node.availability)}`}>
                             {node.availability}
@@ -283,62 +272,88 @@ export const ClusterPage = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 font-mono">{node.id}</p>
+                        <p className="text-sm text-gray-600 mt-1">노드 ID: {node.id}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleNodeAction(node.id, 'inspect')}
-                      >
-                        <Monitor className="w-4 h-4 mr-1" />
-                        검사
-                      </Button>
-                      
-                      {node.availability === 'Active' ? (
+                      {node.availability === 'Active' && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleNodeAction(node.id, 'drain')}
-                          disabled={drainNodeMutation.isPending}
+                          className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
                         >
-                          <WifiOff className="w-4 h-4 mr-1" />
                           드레인
                         </Button>
-                      ) : (
+                      )}
+                      
+                      {node.availability === 'Drain' && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleNodeAction(node.id, 'activate')}
-                          disabled={simulateFailureMutation.isPending}
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
                         >
-                          <CheckCircle className="w-4 h-4 mr-1" />
                           활성화
                         </Button>
                       )}
-                      
+
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleNodeAction(node.id, 'simulate-drain')}
-                        disabled={simulateFailureMutation.isPending}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                       >
-                        <Activity className="w-4 h-4 mr-1" />
                         시뮬레이션
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleNodeAction(node.id, 'inspect')}
+                        className="flex items-center gap-2"
+                      >
+                        <Monitor className="w-4 h-4" />
+                        상세보기
                       </Button>
                     </div>
                   </div>
+
+                  {/* 노드 상태별 추가 정보 */}
+                  {node.status === 'Down' && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <WifiOff className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-red-800 font-medium">노드 연결 불가</span>
+                      </div>
+                      <p className="text-sm text-red-700 mt-1">
+                        이 노드는 현재 클러스터와 통신할 수 없습니다. 네트워크 연결을 확인해주세요.
+                      </p>
+                    </div>
+                  )}
+
+                  {node.availability === 'Drain' && (
+                    <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm text-yellow-800 font-medium">드레인 모드</span>
+                      </div>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        이 노드는 새로운 태스크를 받지 않으며, 기존 태스크들이 다른 노드로 이동됩니다.
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
-              
-              {clusterNodes?.nodes.length === 0 && (
-                <div className="text-center py-8">
-                  <Server className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">등록된 노드가 없습니다.</p>
-                </div>
-              )}
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <Server className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">노드가 없습니다</h3>
+              <p className="text-gray-600">
+                클러스터에 연결된 노드가 없습니다.
+              </p>
             </div>
           )}
         </Card>
