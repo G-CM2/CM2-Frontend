@@ -1,88 +1,104 @@
-# Pages 디렉토리
+# 페이지 (Pages)
 
-이 디렉토리는 애플리케이션의 페이지 컴포넌트들을 포함합니다. 각 페이지는 특정 라우트에 대응되며, 위젯과 피처들을 조합하여 완전한 사용자 인터페이스를 구성합니다.
+이 폴더는 애플리케이션의 모든 페이지 컴포넌트를 포함합니다.
 
-## 디렉토리 구조
+## 구조
+
+- `dashboard/` - 메인 대시보드 페이지
+- `containers/` - 컨테이너 관련 페이지들
+- `services/` - 서비스 관리 페이지
+- `cluster/` - 클러스터 관리 페이지
+- `README.md` - 이 파일
+
+## 페이지 역할
+
+### 대시보드 (`/dashboard`)
+- **목적**: 전체 시스템 현황을 한눈에 파악
+- **기능**: 클러스터 상태, 서비스 현황, 컨테이너 통계, 리소스 사용량
+- **시나리오**: 정상 상태, 스케일링 필요, 장애 상황을 자연스럽게 표시
+
+### 컨테이너 (`/containers`)
+- **목적**: 개별 컨테이너의 상세 관리
+- **기능**: 컨테이너 목록, 상세 정보, 제어 (시작/중지/재시작)
+- **시나리오**: 컨테이너 상태별 필터링 및 관리
+
+### 서비스 (`/services`)
+- **목적**: Docker Swarm 서비스 생성 및 관리
+- **기능**: 서비스 생성/삭제, 실시간 스케일링, 상태 모니터링
+- **시나리오**: 
+  - 정상 상태: 모든 서비스 running
+  - 스케일링: 레플리카 수 조정
+  - 장애 복구: failed 서비스에 문제 해결 옵션 표시
+
+### 클러스터 (`/cluster`)
+- **목적**: Docker Swarm 클러스터 노드 관리
+- **기능**: 노드 상태 시각화, 리소스 모니터링, 노드 제어
+- **시나리오**:
+  - 정상 상태: 모든 노드 ready
+  - 장애 상황: down/unknown 노드에 대한 알림 및 복구 가이드
+
+## 라우팅 구조
 
 ```
-pages/
-├── dashboard/              # 대시보드 페이지
-├── containers/             # 컨테이너 관련 페이지들
-├── README.md              # 이 파일
-└── index.ts               # 공개 인터페이스 (선택사항)
+/ → /dashboard (리다이렉트)
+/dashboard → DashboardPage
+/containers → ContainerListPage
+/containers/:containerId → ContainerDetailsPage
+/services → ServicesPage
+/cluster → ClusterPage
 ```
 
-## 페이지별 설명
+## 공통 패턴
 
-### 1. dashboard/
-메인 대시보드 페이지로, 전체 시스템의 현황을 한눈에 볼 수 있습니다.
+### 레이아웃
+모든 페이지는 `Layout` 위젯을 사용하여 일관된 구조를 유지합니다:
+- 사이드바 네비게이션
+- 메인 콘텐츠 영역
+- 반응형 디자인
 
-**주요 기능:**
-- 시스템 상태 카드 (시스템 상태, CPU/메모리 사용률, 활성 서비스)
-- 서비스 목록 및 관리 (스케일링, 재시작, 업데이트, 문제 해결)
-- 실시간 모니터링 정보
+### 상태 관리
+- React Query를 사용한 서버 상태 관리
+- 실시간 데이터 업데이트 (refetchInterval)
+- 낙관적 업데이트 및 에러 처리
 
-**라우트:** `/`, `/dashboard`
+### 시나리오 통합
+각 페이지는 사전 정의된 시나리오를 자연스럽게 통합합니다:
+- **정상 상태**: 모든 시스템이 정상 작동
+- **스케일링**: 리소스 사용량에 따른 스케일링 필요성 표시
+- **장애 복구**: 문제 상황에 대한 자동 감지 및 복구 옵션 제공
 
-### 2. containers/
-컨테이너 목록과 개별 컨테이너 상세 정보를 제공합니다.
+## 사용법
 
-**하위 페이지:**
-- `index.tsx`: 컨테이너 목록 페이지
-- `container-details/`: 개별 컨테이너 상세 페이지
+```tsx
+import { DashboardPage } from '@/pages/dashboard';
+import { ContainerListPage, ContainerDetailsPage } from '@/pages/containers';
+import { ServicesPage } from '@/pages/services';
+import { ClusterPage } from '@/pages/cluster';
 
-**라우트:** `/containers`, `/containers/:containerId`
-
-## 페이지 구조 규칙
-
-### 1. 페이지 폴더 구조
-각 페이지는 다음과 같은 구조를 따릅니다:
-
+// 라우터 설정에서 사용
+<Routes>
+  <Route path="/dashboard" element={<DashboardPage />} />
+  <Route path="/containers" element={<ContainerListPage />} />
+  <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
+  <Route path="/services" element={<ServicesPage />} />
+  <Route path="/cluster" element={<ClusterPage />} />
+</Routes>
 ```
-page-name/
-├── index.tsx              # 메인 페이지 컴포넌트 (또는 index.ts로 export만)
-├── ui/                    # 페이지 전용 UI 컴포넌트들 (선택사항)
-├── lib/                   # 페이지 전용 로직 (선택사항)
-├── types/                 # 페이지 전용 타입 정의 (선택사항)
-└── README.md              # 페이지 설명 (선택사항)
-```
 
-### 2. 페이지 컴포넌트 명명 규칙
-- 페이지 컴포넌트는 `PageName + Page` 형식으로 명명
-- 예: `DashboardPage`, `ContainerListPage`, `ContainerDetailsPage`
+## 확장 가이드
 
-### 3. 라우팅 규칙
-- 페이지 경로는 kebab-case 사용
-- 중첩 라우트는 폴더 구조와 일치
-- 동적 라우트는 `:paramName` 형식 사용
+새 페이지를 추가할 때:
 
-## 새 페이지 추가 가이드
+1. **폴더 생성**: `src/pages/new-page/`
+2. **컴포넌트 작성**: `new-page.tsx`
+3. **인덱스 파일**: `index.ts`에서 export
+4. **README 작성**: 페이지 목적과 기능 설명
+5. **라우트 추가**: `src/app/App.tsx`에 라우트 추가
+6. **사이드바 메뉴**: 필요시 사이드바에 메뉴 항목 추가
 
-새 페이지를 추가할 때는 다음 단계를 따르세요:
+## API 통합
 
-1. **폴더 생성**: `src/pages/` 하위에 새 폴더 생성
-2. **페이지 컴포넌트 작성**: 메인 페이지 컴포넌트 구현
-3. **라우트 등록**: `src/app/App.tsx`에 새 라우트 추가
-4. **네비게이션 추가**: 필요시 `src/widgets/sidebar/`에 메뉴 항목 추가
-5. **README 업데이트**: 이 파일에 새 페이지 정보 추가
-
-## 페이지 간 데이터 공유
-
-페이지 간 데이터 공유는 다음 방법들을 사용합니다:
-
-- **React Query**: API 데이터 캐싱 및 공유
-- **URL 파라미터**: 페이지 간 상태 전달
-- **Context API**: 전역 상태 관리 (필요시)
-
-## 성능 최적화
-
-- **코드 스플리팅**: React.lazy()를 사용한 페이지별 번들 분리
-- **데이터 프리페칭**: 필요한 데이터 미리 로드
-- **메모이제이션**: React.memo, useMemo, useCallback 활용
-
-## 접근성 고려사항
-
-- **시맨틱 HTML**: 적절한 HTML 태그 사용
-- **키보드 네비게이션**: Tab 키를 통한 접근 가능
-- **스크린 리더**: aria-label, role 속성 활용
-- **색상 대비**: WCAG 가이드라인 준수 
+모든 페이지는 `@/shared/api`를 통해 백엔드와 통신합니다:
+- 일관된 에러 처리
+- 로딩 상태 관리
+- 캐싱 및 동기화 

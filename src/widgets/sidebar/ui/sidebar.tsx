@@ -2,24 +2,34 @@ import { cn } from '@/lib/utils';
 import {
     ChevronRight,
     Container,
-    LayoutDashboard
+    Layers,
+    LayoutDashboard,
+    Server
 } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const menuItems = [
   {
-    title: '대시보드',
+    name: '대시보드',
+    href: '/dashboard',
     icon: LayoutDashboard,
-    path: '/dashboard',
-    description: '전체 시스템 현황'
   },
   {
-    title: '컨테이너',
+    name: '컨테이너',
+    href: '/containers',
     icon: Container,
-    path: '/containers',
-    description: '컨테이너 목록 및 관리'
-  }
+  },
+  {
+    name: '서비스',
+    href: '/services',
+    icon: Server,
+  },
+  {
+    name: '클러스터',
+    href: '/cluster',
+    icon: Layers,
+  },
 ];
 
 export const Sidebar: React.FC = () => {
@@ -46,12 +56,12 @@ export const Sidebar: React.FC = () => {
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.path);
+            const active = isActive(item.href);
             
             return (
-              <li key={item.path}>
+              <li key={item.name}>
                 <Link
-                  to={item.path}
+                  to={item.href}
                   className={cn(
                     'flex items-center justify-between p-3 rounded-lg transition-colors group',
                     active
@@ -65,10 +75,7 @@ export const Sidebar: React.FC = () => {
                       active ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
                     )} />
                     <div>
-                      <div className="font-medium">{item.title}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {item.description}
-                      </div>
+                      <div className="font-medium">{item.name}</div>
                     </div>
                   </div>
                   <ChevronRight className={cn(

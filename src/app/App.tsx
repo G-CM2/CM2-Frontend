@@ -1,6 +1,8 @@
+import { ClusterPage } from '@/pages/cluster';
 import { ContainerListPage } from '@/pages/containers';
 import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { DashboardPage } from '@/pages/dashboard';
+import { ServicesPage } from '@/pages/services';
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Providers } from './providers';
@@ -15,6 +17,8 @@ export const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/containers" element={<ContainerListPage />} />
             <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/cluster" element={<ClusterPage />} />
           </Routes>
         </BrowserRouter>
       </Providers>
