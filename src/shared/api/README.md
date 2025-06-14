@@ -32,102 +32,111 @@ api/
 ## API 모듈
 
 ### 1. 모니터링 API (`monitoring.ts`)
+Docker Swarm 클러스터의 모니터링 정보와 시스템 요약을 제공합니다.
 
-**엔드포인트:**
-- `GET /` - 시스템 모니터링 상태 조회
-- `GET /summary` - 전체 시스템 상태 요약 정보
+#### 인터페이스:
+- `MonitoringResponse` - 클러스터 정보 (GET /)
+- `SystemSummary` - 시스템 요약 정보 (GET /summary)
+- `ClusterNode` - 클러스터 노드 정보
+- `SystemStatus` - 시스템 상태 정보
+- `ContainersSummary` - 컨테이너 요약 정보
+- `ResourceUsage` - 리소스 사용량 정보
 
-**인터페이스:**
-- `MonitoringStatus` - 기본 모니터링 정보
-- `SystemSummary` - 전체 시스템 요약 (클러스터, 서비스, 컨테이너, 리소스, 알림)
+#### 메서드:
+- `getMonitoringInfo()` - 클러스터 기본 정보 및 노드 목록 조회
+- `getSystemSummary()` - 전체 시스템 상태, 컨테이너 및 리소스 요약 정보 조회
 
 ### 2. 클러스터 API (`cluster.ts`)
+Docker Swarm 클러스터 노드 관리 및 상태 확인 기능을 제공합니다.
 
-**엔드포인트:**
-- `GET /cluster/nodes` - 노드 목록 조회
-- `GET /cluster/status` - 클러스터 상태 조회  
-- `GET /cluster/health` - 클러스터 헬스체크
-- `POST /cluster/nodes/{nodeId}/drain` - 노드 드레인 실행
-- `POST /cluster/simulate/failure` - 장애 시뮬레이션 실행
-
-**인터페이스:**
+#### 인터페이스:
 - `Node` - 노드 정보
 - `ClusterStatus` - 클러스터 상태
-- `ClusterHealth` - 헬스체크 결과
-- `FailureSimulationRequest/Response` - 장애 시뮬레이션
-- `NodeDrainRequest/Response` - 노드 드레인
+- `ClusterHealth` - 클러스터 헬스 체크
+- `NodeDrainRequest/Response` - 노드 드레인 요청/응답
+- `FailureSimulationRequest/Response` - 장애 시뮬레이션 요청/응답
+
+#### 메서드:
+- `getNodes()` - 노드 목록 조회
+- `getClusterStatus()` - 클러스터 상태 조회
+- `getClusterHealth()` - 클러스터 헬스 체크
+- `drainNode()` - 노드 드레인 실행
+- `simulateFailure()` - 장애 시뮬레이션 실행
 
 ### 3. 서비스 API (`services.ts`)
+Docker Swarm 서비스 생성, 수정, 삭제 및 스케일링 기능을 제공합니다.
 
-**엔드포인트:**
-- `GET /services` - 서비스 목록 조회
-- `GET /services/{id}` - 특정 서비스 조회
-- `POST /services` - 서비스 생성
-- `POST /services/{id}/update` - 서비스 롤링 업데이트
-- `PUT /services/{id}/scale` - 서비스 스케일링
-- `DELETE /services/{id}` - 서비스 삭제
-
-**인터페이스:**
+#### 인터페이스:
 - `Service` - 서비스 정보
+- `ServicePort` - 서비스 포트 설정
+- `ServiceResources` - 서비스 리소스 설정
+- `UpdateConfig` - 업데이트 설정
 - `CreateServiceRequest` - 서비스 생성 요청
 - `UpdateServiceRequest` - 서비스 업데이트 요청
-- `ScaleServiceRequest` - 스케일링 요청
-- `ServicePort`, `ServiceResources` - 서비스 설정
+- `ScaleServiceRequest` - 서비스 스케일링 요청
+
+#### 메서드:
+- `getServices()` - 서비스 목록 조회
+- `getService()` - 특정 서비스 조회
+- `createService()` - 새 서비스 생성
+- `updateService()` - 서비스 롤링 업데이트
+- `scaleService()` - 서비스 스케일링
+- `deleteService()` - 서비스 삭제
 
 ### 4. 컨테이너 API (`containers.ts`)
+Docker 컨테이너 정보 조회 기능을 제공합니다.
 
-**엔드포인트:**
-- `GET /containers` - 모든 컨테이너 목록 조회
-- `GET /containers/{containerId}` - 특정 컨테이너의 상세 정보 조회
-
-**인터페이스:**
+#### 인터페이스:
 - `Container` - 컨테이너 정보
 - `ContainersResponse` - 컨테이너 목록 응답
 
+#### 메서드:
+- `getContainers()` - 컨테이너 목록 조회
+- `getContainer()` - 특정 컨테이너 상세 정보 조회
+
 ## React Query 훅
 
-### 모니터링 훅
-- `useMonitoringStatus()` - 모니터링 상태 조회
+### 모니터링 훅 (`use-monitoring.ts`)
+- `useMonitoringInfo()` - 클러스터 기본 정보 조회
 - `useSystemSummary()` - 시스템 요약 정보 조회
 
-### 클러스터 훅
+### 클러스터 훅 (`use-cluster.ts`)
 - `useNodes()` - 노드 목록 조회
 - `useClusterStatus()` - 클러스터 상태 조회
-- `useClusterHealth()` - 클러스터 헬스체크
+- `useClusterHealth()` - 클러스터 헬스 체크
 - `useDrainNode()` - 노드 드레인 실행
 - `useSimulateFailure()` - 장애 시뮬레이션 실행
 
-### 서비스 훅
+### 서비스 훅 (`use-services.ts`)
 - `useServices()` - 서비스 목록 조회
-- `useService(id)` - 특정 서비스 조회
+- `useService()` - 특정 서비스 조회
 - `useCreateService()` - 서비스 생성
 - `useUpdateService()` - 서비스 업데이트
 - `useScaleService()` - 서비스 스케일링
 - `useDeleteService()` - 서비스 삭제
 
-### 컨테이너 훅
+### 컨테이너 훅 (`use-containers.ts`)
 - `useContainers()` - 컨테이너 목록 조회
-- `useContainer(id)` - 특정 컨테이너 조회
+- `useContainer()` - 특정 컨테이너 조회
 
-## 사용법
+## 사용 예시
 
 ```typescript
-import { useMonitoringStatus, useNodes, useServices } from '@/shared/api';
+import { useMonitoringInfo, useSystemSummary } from '@/shared/api';
 
-// 컴포넌트에서 사용
-function Dashboard() {
-  const { data: monitoring } = useMonitoringStatus();
-  const { data: nodes } = useNodes();
-  const { data: services } = useServices();
-  
-  // ...
-}
+// 클러스터 기본 정보 조회
+const { data: clusterInfo } = useMonitoringInfo(5000); // 5초마다 갱신
+
+// 시스템 요약 정보 조회
+const { data: summary } = useSystemSummary(10000); // 10초마다 갱신
 ```
 
-## 타입 안전성
+## 주요 특징
 
-모든 API 함수와 훅은 TypeScript로 완전히 타입이 지정되어 있으며, Notion API 명세서의 요청/응답 스키마를 정확히 반영합니다.
+- **타입 안전성**: 모든 API 요청/응답에 대한 TypeScript 인터페이스 제공
+- **자동 캐싱**: React Query를 통한 효율적인 데이터 캐싱
+- **실시간 업데이트**: `refetchInterval` 옵션으로 주기적 데이터 갱신
+- **에러 처리**: 일관된 에러 처리 및 로깅 메커니즘
+- **API 모킹**: MSW를 활용한 개발 환경 모킹 지원
 
-## 명세서 준수
-
-이 API 모듈은 **Notion의 "API 명세서 - 최종 (1)"**에 정의된 모든 엔드포인트를 완전히 구현하며, 명세서에 없는 엔드포인트는 포함하지 않습니다. 
+모든 API는 **Notion API 명세서**의 정의를 완전히 준수하며, 명세서에서 정의되지 않은 엔드포인트는 포함하지 않습니다. 

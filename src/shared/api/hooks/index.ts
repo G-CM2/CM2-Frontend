@@ -21,7 +21,7 @@ import {
 } from './use-services';
 
 import {
-    useMonitoringStatus,
+    useMonitoringInfo,
     useSystemSummary
 } from './use-monitoring';
 
@@ -52,7 +52,7 @@ export {
 
 // 모니터링 관련 훅 내보내기
 export {
-    QUERY_KEYS as MONITORING_QUERY_KEYS, useMonitoringStatus,
+    useMonitoringInfo,
     useSystemSummary
 } from './use-monitoring';
 
@@ -78,6 +78,6 @@ export const hooks = {
   useDeleteService,
   
   // 모니터링
-  useMonitoringStatus,
+  useMonitoringInfo,
   useSystemSummary
 }; 

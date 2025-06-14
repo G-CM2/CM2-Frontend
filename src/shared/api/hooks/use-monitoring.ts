@@ -2,23 +2,24 @@ import { useQuery } from '@tanstack/react-query';
 import { monitoringApi } from '../monitoring';
 
 export const QUERY_KEYS = {
-  monitoringStatus: 'monitoring-status',
+  monitoringInfo: 'monitoring-info',
   systemSummary: 'system-summary'
 };
 
 /**
- * 모니터링 상태를 조회하는 훅
+ * 루트 모니터링 정보를 조회하는 훅 (GET /)
+ * 클러스터 정보를 반환합니다.
  */
-export const useMonitoringStatus = (refreshInterval?: number) => {
+export const useMonitoringInfo = (refreshInterval?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.monitoringStatus],
-    queryFn: () => monitoringApi.getMonitoringStatus(),
+    queryKey: [QUERY_KEYS.monitoringInfo],
+    queryFn: () => monitoringApi.getMonitoringInfo(),
     refetchInterval: refreshInterval
   });
 };
 
 /**
- * 시스템 요약 정보를 조회하는 훅
+ * 시스템 요약 정보를 조회하는 훅 (GET /summary)
  */
 export const useSystemSummary = (refreshInterval?: number) => {
   return useQuery({
