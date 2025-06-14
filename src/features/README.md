@@ -1,56 +1,48 @@
-# Features
+# Features Layer
 
-이 디렉토리는 사용자 상호작용 기능을 포함합니다:
+피처 레이어는 사용자 상호작용과 비즈니스 기능을 담당합니다.
 
-- 컨테이너 컨트롤, 스케일링 정책 폼과 같은 사용자 인터페이스 기능
-- 유저 스토리와 관련된 기능
-- 사용자 액션 처리 로직
-
-## 디렉토리 구조
+## 📁 구조
 
 ```
 features/
-├── container-controls/     # 컨테이너 제어 기능
-│   ├── ui/                 # 컨테이너 제어 UI
-│   │   └── container-action-button.tsx  # 액션 버튼 컴포넌트
-│   ├── api/                # 컨테이너 액션 API
-│   └── index.ts            # 공개 API
-├── container-control/      # 단일 컨테이너 제어 기능 (단일 액션용)
-└── scaling-policy-form/    # 스케일링 정책 폼 기능
-    ├── ui/                 # 폼 UI 컴포넌트
-    ├── model/              # 폼 상태 관리
-    └── index.ts            # 공개 API
+├── container-control/      # 단일 컨테이너 제어 기능
+│   ├── ui/                # 컨테이너 액션 버튼
+│   ├── index.ts           # 공개 API
+│   └── README.md          # 기능 문서
+└── README.md              # 이 파일
 ```
 
-## 현재 기능
+## 🎯 책임
 
-- **container-controls**: 컨테이너 시작/중지/재시작/삭제 등의 액션 기능
-- **scaling-policy-form**: 자동 스케일링 정책 생성 및 수정 폼 기능
+### Container Control Feature
+- 개별 컨테이너에 대한 액션 버튼 제공
+- 컨테이너 시작/중지/재시작/삭제 등의 단일 액션 처리
 
-## 기능 구조
+## 📋 규칙
 
-각 피처는 다음 구조를 따릅니다:
-- `model/`: 상태, 이펙트, 셀렉터
-- `ui/`: UI 컴포넌트
-- `lib/`: 로직 및 헬퍼
-- `api/`: API 요청
-- `config/`: 상수
-- `types/`: 로컬 타입 (선택적)
-- `index.ts`: 공개 엔트리 포인트
+1. **기능 독립성**: 각 피처는 독립적으로 동작
+2. **엔티티 활용**: entities 레이어의 도메인 로직 활용
+3. **UI 집중**: 사용자 상호작용에 집중
+4. **재사용성**: 여러 페이지에서 사용 가능한 구조
 
-## 확장 방법
+## 🔄 확장 가이드
 
-새로운 기능을 추가하려면:
+새로운 피처 추가 시:
+1. 기능별 폴더 생성
+2. `ui/`, `lib/`, `api/` 구조 유지
+3. `index.ts`에서 공개 API 정의
+4. README.md로 기능 문서화
+5. 이 README 업데이트
 
-1. 기능 이름으로 새 디렉토리를 생성합니다 (kebab-case 사용).
-2. 위의 구조를 따라 필요한 하위 디렉토리를 구성합니다.
-3. `index.ts`를 통해 공개 API를 명확하게 정의합니다.
-4. 비즈니스 로직은 `model/` 디렉토리에 집중시킵니다.
-5. UI 컴포넌트는 `ui/` 디렉토리에 배치합니다.
+## 📝 예시
 
-## 의존성 규칙
+```typescript
+// features/container-control/ui/container-action-button.tsx
+export const ContainerActionButton = ({ action, containerId }) => {
+  // 컨테이너 액션 처리 로직
+};
 
-- 기능(feature)은 다른 기능(feature)을 직접 가져올 수 없습니다.
-- 기능은 엔티티, 공유 레이어에만 의존할 수 있습니다.
-- 기능은 페이지, 위젯, 프로세스에 의존할 수 없습니다.
-- 기능의 내부 구조는 외부에 노출되지 않아야 합니다. 모든 접근은 `index.ts`를 통해 이루어져야 합니다. 
+// features/container-control/index.ts
+export { ContainerActionButton } from './ui/container-action-button';
+``` 

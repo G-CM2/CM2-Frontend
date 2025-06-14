@@ -1,1 +1,0 @@
-export { SelfHealingSimulationView } from './ui/self-healing-simulation-view';

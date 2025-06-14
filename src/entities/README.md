@@ -1,53 +1,52 @@
-# Entities
+# Entities Layer
 
-이 디렉토리는 비즈니스 엔티티를 포함합니다:
+엔티티 레이어는 비즈니스 도메인의 핵심 로직과 데이터 모델을 담당합니다.
 
-- 도메인 모델 (컨테이너, 시스템, 스케일링 정책 등)
-- 엔티티 관련 비즈니스 로직
-- 엔티티 UI 표현
-
-## 디렉토리 구조
+## 📁 구조
 
 ```
 entities/
-├── container/         # 컨테이너 관련 엔티티
-│   ├── model/         # 컨테이너 상태 및 로직
-│   ├── ui/            # 컨테이너 UI 표현
-│   ├── api/           # 컨테이너 API 통신
-│   ├── types/         # 컨테이너 관련 타입
+├── container/          # 컨테이너 도메인 로직
+│   ├── model/         # 컨테이너 상태 관리
+│   ├── ui/            # 컨테이너 UI 컴포넌트
+│   ├── types/         # 컨테이너 타입 정의
 │   └── index.ts       # 공개 API
-├── scaling-policy/    # 스케일링 정책 엔티티
-└── system/            # 시스템 정보 엔티티
+└── README.md          # 이 파일
 ```
 
-## 현재 엔티티
+## 🎯 책임
 
-- **container**: Docker 컨테이너 엔티티. 컨테이너 정보, 상태, 메타데이터 관리
-- **scaling-policy**: 자동 스케일링 정책 엔티티. 스케일링 규칙 및 임계값 정의
-- **system**: 호스트 시스템 정보 엔티티. CPU, 메모리, 디스크 등의 시스템 리소스 정보
+### Container Entity
+- 컨테이너의 상태와 속성 정의
+- 컨테이너 관련 UI 컴포넌트 제공
+- 컨테이너 데이터 타입 정의
 
-## 엔티티 구조
+## 📋 규칙
 
-각 엔티티는 다음 구조를 따릅니다:
-- `model/`: 상태, 이펙트, 셀렉터
-- `ui/`: UI 컴포넌트
-- `lib/`: 로직 및 헬퍼
-- `api/`: API 요청
-- `config/`: 상수
-- `types/`: 로컬 타입 (선택적)
-- `index.ts`: 공개 엔트리 포인트
+1. **도메인 순수성**: 비즈니스 로직만 포함, UI 프레임워크에 의존하지 않음
+2. **타입 안전성**: 모든 데이터 구조에 대한 TypeScript 타입 정의
+3. **재사용성**: 다른 레이어에서 쉽게 사용할 수 있는 인터페이스 제공
+4. **독립성**: 다른 엔티티에 직접 의존하지 않음
 
-## 확장 방법
+## 🔄 확장 가이드
 
-새로운 엔티티를 추가하려면:
+새로운 엔티티 추가 시:
+1. 도메인별 폴더 생성
+2. `types/`, `model/`, `ui/` 구조 유지
+3. `index.ts`에서 공개 API 정의
+4. 이 README 업데이트
 
-1. 엔티티 이름으로 새 디렉토리를 생성합니다.
-2. 위의 구조를 따라 하위 디렉토리를 구성합니다.
-3. `index.ts`를 통해 공개 API를 명확하게 정의합니다.
-4. 엔티티를 사용할 모든 곳에서 이 공개 API만 참조하도록 합니다.
+## 📝 예시
 
-## 의존성 규칙
+```typescript
+// entities/container/types/index.ts
+export interface Container {
+  id: string;
+  name: string;
+  status: ContainerStatus;
+}
 
-- 엔티티는 다른 엔티티에 의존할 수 있습니다.
-- 엔티티는 features, widgets, pages에 의존할 수 없습니다.
-- `shared/` 레이어의 유틸리티와 UI 컴포넌트를 자유롭게 사용할 수 있습니다. 
+// entities/container/index.ts
+export type { Container } from './types';
+export { ContainerCard } from './ui/container-card';
+``` 

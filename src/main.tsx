@@ -6,7 +6,7 @@ import './index.css'
 async function bootstrap() {
   // 개발 환경에서만 MSW 적용
   // 일단은 모든 환경에서 적용
-    const { worker } = await import('./shared/api/mock')
+    const { worker } = await import('./shared/lib/msw-setup')
     await worker.start({
       serviceWorker:{
         url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
