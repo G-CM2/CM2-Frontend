@@ -20,11 +20,6 @@ import {
     useUpdateService
 } from './use-services';
 
-import {
-    useMonitoringInfo,
-    useSystemSummary
-} from './use-monitoring';
-
 // 컨테이너 관련 훅 내보내기
 export {
     QUERY_KEYS as CONTAINERS_QUERY_KEYS, useContainer,
@@ -50,11 +45,8 @@ export {
     useUpdateService
 } from './use-services';
 
-// 모니터링 관련 훅 내보내기
-export {
-    useMonitoringInfo,
-    useSystemSummary
-} from './use-monitoring';
+// 시스템 요약 정보는 서비스 API에서 제공
+export { useSystemSummary } from './use-services';
 
 // 모든 훅을 하나의 객체로 내보내기 (선택적)
 export const hooks = {
@@ -75,9 +67,5 @@ export const hooks = {
   useCreateService,
   useUpdateService,
   useScaleService,
-  useDeleteService,
-  
-  // 모니터링
-  useMonitoringInfo,
-  useSystemSummary
+  useDeleteService
 }; 

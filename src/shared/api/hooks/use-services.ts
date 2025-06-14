@@ -4,12 +4,14 @@ import {
     ScaleServiceRequest,
     Service,
     servicesApi,
+    SystemSummary,
     UpdateServiceRequest
 } from '../services';
 
 export const SERVICES_QUERY_KEYS = {
   services: 'services',
-  service: 'service'
+  service: 'service',
+  systemSummary: 'system-summary'
 };
 
 /**
@@ -19,6 +21,19 @@ export const useServices = () => {
   return useQuery<Service[]>({
     queryKey: [SERVICES_QUERY_KEYS.services],
     queryFn: servicesApi.getServices,
+    staleTime: 30000, // 30초
+    gcTime: 300000 // 5분
+  });
+};
+
+/**
+ * 시스템 요약 정보 조회 훅
+ */
+export const useSystemSummary = (refreshInterval?: number) => {
+  return useQuery<SystemSummary>({
+    queryKey: [SERVICES_QUERY_KEYS.systemSummary],
+    queryFn: servicesApi.getSystemSummary,
+    refetchInterval: refreshInterval,
     staleTime: 30000, // 30초
     gcTime: 300000 // 5분
   });

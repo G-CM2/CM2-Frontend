@@ -11,6 +11,27 @@ export type ServiceStatus = 'pending' | 'running' | 'complete' | 'shutdown' | 'f
 export type ServiceMode = 'replicated' | 'global';
 
 /**
+ * 시스템 요약 정보 인터페이스
+ */
+export interface SystemSummary {
+  status: {
+    indicator: 'normal' | 'warning' | 'critical';
+    description: string;
+  };
+  containers: {
+    total: number;
+    running: number;
+    stopped: number;
+    failed: number;
+  };
+  resources: {
+    cpu_usage: number;
+    memory_usage: number;
+    disk_usage: number;
+  };
+}
+
+/**
  * 서비스 인터페이스
  */
 export interface Service {
@@ -161,6 +182,14 @@ export const servicesApi = {
    */
   async getServices(): Promise<Service[]> {
     const response = await apiClient.get<Service[]>('/services');
+    return response.data;
+  },
+
+  /**
+   * 시스템 요약 정보 조회
+   */
+  async getSystemSummary(): Promise<SystemSummary> {
+    const response = await apiClient.get<SystemSummary>('/summary');
     return response.data;
   },
 

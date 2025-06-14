@@ -1,118 +1,88 @@
-# Pages 모듈
+# Pages 디렉토리
 
-이 폴더는 애플리케이션의 각 페이지 컴포넌트들을 포함합니다. 각 페이지는 독립적인 라우트를 가지며, 여러 위젯과 피처를 조합하여 완전한 사용자 인터페이스를 제공합니다.
+이 디렉토리는 애플리케이션의 페이지 컴포넌트들을 포함합니다. 각 페이지는 특정 라우트에 대응되며, 위젯과 피처들을 조합하여 완전한 사용자 인터페이스를 구성합니다.
 
-## 구조
+## 디렉토리 구조
 
 ```
 pages/
-├── cluster-monitoring/     # 클러스터 모니터링 페이지 (교육용 시각화)
-├── cluster-topology/       # 클러스터 토폴로지 페이지
-├── containers/             # 컨테이너 관련 페이지들
 ├── dashboard/              # 대시보드 페이지
-├── scaling/                # 스케일링 페이지
-├── service-deployment/     # 서비스 배포 페이지
-└── README.md               # 이 파일
+├── containers/             # 컨테이너 관련 페이지들
+├── README.md              # 이 파일
+└── index.ts               # 공개 인터페이스 (선택사항)
 ```
 
-## 페이지 설명
+## 페이지별 설명
 
-### 1. cluster-monitoring/
-**교육용 쿠버네틱스 클러스터 모니터링 시각화 페이지**
-- 실시간 클러스터 상태 모니터링
-- 노드 상태 시각화
-- 시스템 리소스 사용량 대시보드
-- 컨테이너 상태 요약
-- 교육용 인터랙티브 요소 포함
+### 1. dashboard/
+메인 대시보드 페이지로, 전체 시스템의 현황을 한눈에 볼 수 있습니다.
 
-### 2. cluster-topology/
-클러스터의 네트워크 토폴로지와 노드 간 관계를 시각화합니다.
+**주요 기능:**
+- 시스템 상태 카드 (시스템 상태, CPU/메모리 사용률, 활성 서비스)
+- 서비스 목록 및 관리 (스케일링, 재시작, 업데이트, 문제 해결)
+- 실시간 모니터링 정보
 
-### 3. containers/
-컨테이너 관련 페이지들을 포함합니다:
-- 컨테이너 목록 페이지
-- 개별 컨테이너 상세 페이지
+**라우트:** `/`, `/dashboard`
 
-### 4. dashboard/
-전체 시스템의 개요를 제공하는 메인 대시보드입니다.
+### 2. containers/
+컨테이너 목록과 개별 컨테이너 상세 정보를 제공합니다.
 
-### 5. scaling/
-서비스 스케일링 정책 관리 페이지입니다.
+**하위 페이지:**
+- `index.tsx`: 컨테이너 목록 페이지
+- `container-details/`: 개별 컨테이너 상세 페이지
 
-### 6. service-deployment/
-서비스 배포 및 관리 페이지입니다.
+**라우트:** `/containers`, `/containers/:containerId`
 
-## 페이지 생성 규칙
+## 페이지 구조 규칙
 
-### 폴더 구조
-각 페이지는 다음과 같은 구조를 가져야 합니다:
+### 1. 페이지 폴더 구조
+각 페이지는 다음과 같은 구조를 따릅니다:
 
 ```
 page-name/
-├── index.ts              # 페이지 내보내기
-├── page-name-page.tsx    # 메인 페이지 컴포넌트
-├── ui/                   # 페이지 전용 UI 컴포넌트들
-│   ├── component-name.tsx
-│   └── index.ts
-├── lib/                  # 페이지 전용 로직 (선택적)
-│   ├── utils.ts
-│   └── index.ts
-└── README.md             # 페이지 설명
+├── index.tsx              # 메인 페이지 컴포넌트 (또는 index.ts로 export만)
+├── ui/                    # 페이지 전용 UI 컴포넌트들 (선택사항)
+├── lib/                   # 페이지 전용 로직 (선택사항)
+├── types/                 # 페이지 전용 타입 정의 (선택사항)
+└── README.md              # 페이지 설명 (선택사항)
 ```
 
-### 명명 규칙
-- 폴더명: `kebab-case` (예: `cluster-monitoring`)
-- 컴포넌트명: `PascalCase` + `Page` 접미사 (예: `ClusterMonitoringPage`)
-- 파일명: `kebab-case` (예: `cluster-monitoring-page.tsx`)
+### 2. 페이지 컴포넌트 명명 규칙
+- 페이지 컴포넌트는 `PageName + Page` 형식으로 명명
+- 예: `DashboardPage`, `ContainerListPage`, `ContainerDetailsPage`
 
-### 페이지 컴포넌트 작성 규칙
-1. **단일 책임**: 각 페이지는 하나의 주요 기능에 집중
-2. **위젯 조합**: 복잡한 UI는 widgets에서 가져와서 조합
-3. **피처 활용**: 비즈니스 로직은 features에서 가져와서 사용
-4. **API 훅 사용**: shared/api의 훅을 통해 데이터 관리
-5. **반응형 디자인**: 모든 페이지는 반응형으로 구현
+### 3. 라우팅 규칙
+- 페이지 경로는 kebab-case 사용
+- 중첩 라우트는 폴더 구조와 일치
+- 동적 라우트는 `:paramName` 형식 사용
 
-### 라우팅 등록
-새로운 페이지를 만든 후에는 `src/app/App.tsx`에 라우트를 등록해야 합니다:
+## 새 페이지 추가 가이드
 
-```typescript
-import { NewPage } from '@/pages/new-page';
+새 페이지를 추가할 때는 다음 단계를 따르세요:
 
-// Routes 내부에 추가
-<Route path="/new-page" element={<NewPage />} />
-```
+1. **폴더 생성**: `src/pages/` 하위에 새 폴더 생성
+2. **페이지 컴포넌트 작성**: 메인 페이지 컴포넌트 구현
+3. **라우트 등록**: `src/app/App.tsx`에 새 라우트 추가
+4. **네비게이션 추가**: 필요시 `src/widgets/sidebar/`에 메뉴 항목 추가
+5. **README 업데이트**: 이 파일에 새 페이지 정보 추가
 
-## 교육용 페이지 특징
+## 페이지 간 데이터 공유
 
-### cluster-monitoring 페이지
-이 페이지는 쿠버네틱스 교육을 목적으로 하며 다음과 같은 특징을 가집니다:
+페이지 간 데이터 공유는 다음 방법들을 사용합니다:
 
-1. **시각적 학습**: 복잡한 클러스터 개념을 직관적으로 이해할 수 있는 시각화
-2. **실시간 데이터**: 실제 클러스터 상태를 실시간으로 보여주는 모니터링
-3. **인터랙티브 요소**: 사용자가 직접 조작하고 결과를 확인할 수 있는 기능
-4. **교육적 설명**: 각 요소에 대한 설명과 도움말 제공
+- **React Query**: API 데이터 캐싱 및 공유
+- **URL 파라미터**: 페이지 간 상태 전달
+- **Context API**: 전역 상태 관리 (필요시)
 
-## 사용 예시
+## 성능 최적화
 
-```typescript
-// 페이지 컴포넌트 예시
-import { useMonitoringInfo, useSystemSummary } from '@/shared/api';
-import { ClusterVisualization } from '@/widgets/cluster-visualization';
+- **코드 스플리팅**: React.lazy()를 사용한 페이지별 번들 분리
+- **데이터 프리페칭**: 필요한 데이터 미리 로드
+- **메모이제이션**: React.memo, useMemo, useCallback 활용
 
-export const ClusterMonitoringPage = () => {
-  const { data: clusterInfo } = useMonitoringInfo(5000);
-  const { data: summary } = useSystemSummary(10000);
+## 접근성 고려사항
 
-  return (
-    <div className="p-6">
-      <h1>클러스터 모니터링</h1>
-      <ClusterVisualization 
-        clusterInfo={clusterInfo}
-        summary={summary}
-      />
-    </div>
-  );
-};
-```
-
-모든 페이지는 교육적 가치를 제공하고 사용자가 쿠버네틱스 개념을 시각적으로 학습할 수 있도록 설계되어야 합니다. 
+- **시맨틱 HTML**: 적절한 HTML 태그 사용
+- **키보드 네비게이션**: Tab 키를 통한 접근 가능
+- **스크린 리더**: aria-label, role 속성 활용
+- **색상 대비**: WCAG 가이드라인 준수 
