@@ -1,99 +1,133 @@
 # API 모듈
 
-이 디렉토리는 Docker 컨테이너 관리 대시보드의 백엔드 API와 통신하는 모듈을 포함하고 있습니다.
+이 폴더는 백엔드 API와의 통신을 담당하는 모듈들을 포함합니다. **Notion API 명세서**를 기반으로 구현되었으며, 모든 엔드포인트는 명세서에 정의된 내용과 정확히 일치합니다.
 
-## 디렉토리 구조
+## 구조
 
 ```
 api/
-├── api-client.ts    # 기본 HTTP 클라이언트 (Axios) 설정
-├── containers.ts    # 컨테이너 관련 API
-├── scaling.ts       # 스케일링 정책 관련 API
-├── system.ts        # 시스템 및 대시보드 관련 API
-├── hooks/           # React Query 훅
-└── mock/            # MSW를 사용한 API 모킹
+├── api-client.ts           # 기본 API 클라이언트 설정
+├── cluster.ts              # 클러스터 관련 API
+├── containers.ts           # 컨테이너 관련 API  
+├── monitoring.ts           # 모니터링 및 시스템 요약 API
+├── services.ts             # 서비스 관리 API
+├── hooks/                  # React Query 훅들
+│   ├── use-cluster.ts      # 클러스터 관련 훅
+│   ├── use-containers.ts   # 컨테이너 관련 훅
+│   ├── use-monitoring.ts   # 모니터링 관련 훅
+│   ├── use-services.ts     # 서비스 관련 훅
+│   └── index.ts            # 모든 훅 내보내기
+├── mock/                   # MSW 모킹 설정
+└── index.ts                # 모든 API 모듈 내보내기
 ```
 
-## 도메인 분리
+## 기본 설정
 
-API는 다음과 같은 도메인으로 분리되어 있습니다:
+### API 클라이언트 (`api-client.ts`)
+- 기본 URL: `http://localhost:8080/`
+- Axios 기반 HTTP 클라이언트
+- 요청/응답 인터셉터 포함
+- 에러 처리 및 로깅
 
-### 1. 컨테이너 (containers.ts)
-- 컨테이너 목록 조회
-- 컨테이너 상세 정보 조회
-- 컨테이너 시작/중지/재시작 등 동작 수행
+## API 모듈
 
-### 2. 스케일링 (scaling.ts)
-- 자동 스케일링 정책 목록 조회
-- 자동 스케일링 정책 상세 조회
-- 정책 생성, 수정, 삭제
+### 1. 모니터링 API (`monitoring.ts`)
 
-### 3. 시스템 (system.ts)
-- 시스템 요약 정보 (CPU, 메모리, 디스크 사용량 등)
-- 대시보드 요약 정보
+**엔드포인트:**
+- `GET /` - 시스템 모니터링 상태 조회
+- `GET /summary` - 전체 시스템 상태 요약 정보
 
-## 사용 방법
+**인터페이스:**
+- `MonitoringStatus` - 기본 모니터링 정보
+- `SystemSummary` - 전체 시스템 요약 (클러스터, 서비스, 컨테이너, 리소스, 알림)
 
-각 도메인 모듈은 관련 인터페이스와 API 함수를 내보냅니다. 모든 API 함수는 비동기적이며 Promise를 반환합니다.
+### 2. 클러스터 API (`cluster.ts`)
 
-```typescript
-import { containersApi, Container } from '@/shared/api';
+**엔드포인트:**
+- `GET /cluster/nodes` - 노드 목록 조회
+- `GET /cluster/status` - 클러스터 상태 조회  
+- `GET /cluster/health` - 클러스터 헬스체크
+- `POST /cluster/nodes/{nodeId}/drain` - 노드 드레인 실행
+- `POST /cluster/simulate/failure` - 장애 시뮬레이션 실행
 
-// 컨테이너 목록 가져오기
-const containers = await containersApi.getContainers();
+**인터페이스:**
+- `Node` - 노드 정보
+- `ClusterStatus` - 클러스터 상태
+- `ClusterHealth` - 헬스체크 결과
+- `FailureSimulationRequest/Response` - 장애 시뮬레이션
+- `NodeDrainRequest/Response` - 노드 드레인
 
-// 특정 컨테이너 시작
-await containersApi.startContainer('container-id');
-```
+### 3. 서비스 API (`services.ts`)
+
+**엔드포인트:**
+- `GET /services` - 서비스 목록 조회
+- `GET /services/{id}` - 특정 서비스 조회
+- `POST /services` - 서비스 생성
+- `POST /services/{id}/update` - 서비스 롤링 업데이트
+- `PUT /services/{id}/scale` - 서비스 스케일링
+- `DELETE /services/{id}` - 서비스 삭제
+
+**인터페이스:**
+- `Service` - 서비스 정보
+- `CreateServiceRequest` - 서비스 생성 요청
+- `UpdateServiceRequest` - 서비스 업데이트 요청
+- `ScaleServiceRequest` - 스케일링 요청
+- `ServicePort`, `ServiceResources` - 서비스 설정
+
+### 4. 컨테이너 API (`containers.ts`)
+
+**엔드포인트:**
+- `GET /containers` - 모든 컨테이너 목록 조회
+- `GET /containers/{containerId}` - 특정 컨테이너의 상세 정보 조회
+
+**인터페이스:**
+- `Container` - 컨테이너 정보
+- `ContainersResponse` - 컨테이너 목록 응답
 
 ## React Query 훅
 
-데이터 페칭 및 캐싱을 위해 React Query 훅이 `hooks/` 디렉토리에 구현되어 있습니다.
+### 모니터링 훅
+- `useMonitoringStatus()` - 모니터링 상태 조회
+- `useSystemSummary()` - 시스템 요약 정보 조회
 
-### 주요 훅 목록
+### 클러스터 훅
+- `useNodes()` - 노드 목록 조회
+- `useClusterStatus()` - 클러스터 상태 조회
+- `useClusterHealth()` - 클러스터 헬스체크
+- `useDrainNode()` - 노드 드레인 실행
+- `useSimulateFailure()` - 장애 시뮬레이션 실행
+
+### 서비스 훅
+- `useServices()` - 서비스 목록 조회
+- `useService(id)` - 특정 서비스 조회
+- `useCreateService()` - 서비스 생성
+- `useUpdateService()` - 서비스 업데이트
+- `useScaleService()` - 서비스 스케일링
+- `useDeleteService()` - 서비스 삭제
+
+### 컨테이너 훅
+- `useContainers()` - 컨테이너 목록 조회
+- `useContainer(id)` - 특정 컨테이너 조회
+
+## 사용법
 
 ```typescript
-// 컨테이너 관련 훅
-import { 
-  useContainers,          // 컨테이너 목록 조회
-  useContainer,           // 단일 컨테이너 조회
-  useContainerAction,     // 범용 컨테이너 액션 수행
-  useStartContainer,      // 컨테이너 시작
-  useStopContainer,       // 컨테이너 중지
-  useRestartContainer,    // 컨테이너 재시작
-  usePauseContainer,      // 컨테이너 일시중지
-  useUnpauseContainer     // 컨테이너 일시중지 해제
-} from '@/shared/api';
+import { useMonitoringStatus, useNodes, useServices } from '@/shared/api';
 
-// 스케일링 관련 훅
-import {
-  useScalingPolicies,     // 스케일링 정책 목록 조회
-  useScalingPolicy,       // 단일 스케일링 정책 조회
-  useCreateScalingPolicy, // 스케일링 정책 생성
-  useUpdateScalingPolicy, // 스케일링 정책 수정
-  useDeleteScalingPolicy  // 스케일링 정책 삭제
-} from '@/shared/api';
+// 컴포넌트에서 사용
+function Dashboard() {
+  const { data: monitoring } = useMonitoringStatus();
+  const { data: nodes } = useNodes();
+  const { data: services } = useServices();
+  
+  // ...
+}
 ```
 
-## 모킹
+## 타입 안전성
 
-개발 환경에서는 [MSW(Mock Service Worker)](https://mswjs.io/)를 사용하여 API 요청을 가로채고 모의 응답을 제공합니다. 이 모킹 설정은 `mock/` 디렉토리에 있습니다.
+모든 API 함수와 훅은 TypeScript로 완전히 타입이 지정되어 있으며, Notion API 명세서의 요청/응답 스키마를 정확히 반영합니다.
 
-## 인터페이스
+## 명세서 준수
 
-각 도메인 모듈은 자체 인터페이스를 정의하고 있습니다:
-
-### containers.ts
-- `Container` - 컨테이너 정보 인터페이스
-- `ContainersResponse` - 컨테이너 목록 응답 인터페이스
-- `ContainerActionRequest` - 컨테이너 동작 요청 인터페이스
-- `ContainerActionResponse` - 컨테이너 동작 응답 인터페이스
-
-### scaling.ts
-- `ScalingPolicy` - 스케일링 정책 인터페이스
-- `ScalingMetric` - 스케일링 지표 인터페이스
-- `CreateScalingPolicyRequest` - 스케일링 정책 생성 요청 인터페이스
-
-### system.ts
-- `SystemSummary` - 시스템 요약 정보 인터페이스
-- `DashboardSummary` - 대시보드 요약 정보 인터페이스 
+이 API 모듈은 **Notion의 "API 명세서 - 최종 (1)"**에 정의된 모든 엔드포인트를 완전히 구현하며, 명세서에 없는 엔드포인트는 포함하지 않습니다. 

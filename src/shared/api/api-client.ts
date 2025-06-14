@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API 기본 URL
-export const API_URL = 'http://localhost:3000/api';
+// API 기본 URL - Notion API 명세서 기준
+export const API_URL = 'http://localhost:8080/';
 
 // Axios 인스턴스 생성
 export const apiClient = axios.create({

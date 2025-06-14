@@ -38,24 +38,6 @@ export interface ContainersResponse {
   containers: Container[];
 }
 
-/**
- * 컨테이너 동작 요청 인터페이스
- */
-export interface ContainerActionRequest {
-  action: 'start' | 'stop' | 'restart' | 'pause' | 'unpause';
-}
-
-/**
- * 컨테이너 동작 응답 인터페이스
- */
-export interface ContainerActionResponse {
-  container_id: string;
-  action: string;
-  status: string;
-  timestamp: string;
-  message?: string;
-}
-
 // 컨테이너 API 함수 정의
 export const containersApi = {
   /**
@@ -74,34 +56,5 @@ export const containersApi = {
   getContainer: async (id: string) => {
     const response = await apiClient.get<Container>(`/containers/${id}`);
     return response.data;
-  },
-
-  /**
-   * 컨테이너 동작 수행 (시작, 중지, 재시작 등)
-   */
-  performContainerAction: async (containerId: string, action: ContainerActionRequest) => {
-    const response = await apiClient.post<ContainerActionResponse>(`/containers/${containerId}/actions`, action);
-    return response.data;
-  },
-
-  /**
-   * 컨테이너 시작
-   */
-  startContainer: async (containerId: string) => {
-    return containersApi.performContainerAction(containerId, { action: 'start' });
-  },
-
-  /**
-   * 컨테이너 중지
-   */
-  stopContainer: async (containerId: string) => {
-    return containersApi.performContainerAction(containerId, { action: 'stop' });
-  },
-
-  /**
-   * 컨테이너 재시작
-   */
-  restartContainer: async (containerId: string) => {
-    return containersApi.performContainerAction(containerId, { action: 'restart' });
   }
 }; 
