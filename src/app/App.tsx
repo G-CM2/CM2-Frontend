@@ -4,7 +4,7 @@ import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { DashboardPage } from '@/pages/dashboard';
 import { ServicesPage } from '@/pages/services';
 
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Providers } from './providers';
 
 export const App = () => {
@@ -19,6 +19,7 @@ export const App = () => {
             <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/cluster" element={<ClusterPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </Providers>
