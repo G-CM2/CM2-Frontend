@@ -63,6 +63,12 @@ export const Sidebar: React.FC = () => {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
+            let dataTour = undefined;
+            if (item.name === '대시보드') dataTour = 'sidebar-dashboard';
+            if (item.name === '컨테이너') dataTour = 'sidebar-containers';
+            if (item.name === '서비스') dataTour = 'sidebar-services';
+            if (item.name === '클러스터') dataTour = 'sidebar-cluster';
+            if (item.name === '튜토리얼') dataTour = 'sidebar-tutorial';
             return (
               <li key={item.name}>
                 <Link
@@ -73,6 +79,7 @@ export const Sidebar: React.FC = () => {
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   )}
+                  {...(dataTour ? { 'data-tour': dataTour } : {})}
                 >
                   <div className="flex items-center">
                     <Icon className={cn(

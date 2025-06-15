@@ -253,7 +253,7 @@ export const ClusterPage = () => {
               {clusterNodes.nodes.map((node) => (
                 <div key={node.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4" data-tour="node-details" tabIndex={0}>
                       {getRoleIcon(node.managerStatus)}
                       <div>
                         <div className="flex items-center gap-3">

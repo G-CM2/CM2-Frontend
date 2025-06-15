@@ -4,8 +4,8 @@ import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { DashboardPage } from '@/pages/dashboard';
 import { ServiceDetailsPage, ServicesPage } from '@/pages/services';
 import { TutorialPage } from '@/pages/tutorial';
-import { TutorialWidget } from '@/widgets/tutorial';
 
+import { TutorialWidget } from '@/widgets/tutorial';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Providers } from './providers';
 
@@ -13,6 +13,7 @@ export const App = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <Providers>
+        <TutorialWidget />
         <BrowserRouter basename="/CM2-Frontend/">
           <Routes>
             <Route path="/" element={<DashboardPage />} />
@@ -25,7 +26,6 @@ export const App = () => {
             <Route path="/tutorial" element={<TutorialPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <TutorialWidget />
         </BrowserRouter>
       </Providers>
     </div>

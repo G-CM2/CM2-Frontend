@@ -4,19 +4,47 @@ import { Layout } from '@/widgets/layout';
 import { BookOpen, LifeBuoy, Network, Server } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
+// 시나리오 하드코딩 (카드용, 실제 단계는 store에서 관리)
+const scenarios = [
+  {
+    id: 'service-lifecycle',
+    title: '서비스 생명주기 관리',
+    description: '서비스 생성부터 삭제까지 전체 생명주기를 관리하는 방법을 학습합니다.',
+    steps: 7,
+    tourTarget: 'go-services',
+  },
+  {
+    id: 'cluster-monitoring',
+    title: '클러스터 모니터링',
+    description: '클러스터 전체 상태와 개별 노드의 상태를 모니터링하는 방법을 학습합니다.',
+    steps: 6,
+    tourTarget: 'go-cluster',
+  },
+  {
+    id: 'failure-handling',
+    title: '장애 대응',
+    description: '시스템 장애 상황을 시뮬레이션하고 대응하는 방법을 학습합니다.',
+    steps: 5,
+    tourTarget: 'go-cluster',
+  },
+  {
+    id: 'scale-up',
+    title: '서비스 스케일업',
+    description: '서비스의 레플리카 수를 조정하여 확장하는 방법을 학습합니다.',
+    steps: 4,
+    tourTarget: 'go-services',
+  },
+];
+
 export const TutorialPage = () => {
-  const { scenarios, openTutorial, isOpen } = useTutorialStore();
   const scenarioRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const openTutorial = useTutorialStore((s) => s.openTutorial);
 
   useEffect(() => {
     if (scenarioRefs.current[0]) {
       scenarioRefs.current[0].focus();
     }
   }, []);
-
-  const handleStartTutorial = (scenarioId: string) => {
-    openTutorial(scenarioId);
-  };
 
   // 시나리오별 대표 아이콘 매핑
   const scenarioIcons: Record<string, React.ReactNode> = {
@@ -54,7 +82,8 @@ export const TutorialPage = () => {
               }}
               tabIndex={0}
               className="cursor-pointer transition-transform hover:scale-[1.025] focus:outline-none focus:ring-2 focus:ring-blue-500 group"
-              onClick={() => handleStartTutorial(scenario.id)}
+              onClick={() => openTutorial(scenario.id)}
+              data-tour={scenario.tourTarget}
             >
               <CardContent className="flex flex-col gap-2 min-h-[160px] justify-between">
                 <div className="flex items-center gap-3 mb-2">
@@ -66,22 +95,15 @@ export const TutorialPage = () => {
                 </div>
                 <p className="text-gray-700 dark:text-gray-300 mb-2 flex-1">{scenario.description}</p>
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  <span>{scenario.steps.length}단계</span>
+                  <span>{scenario.steps}단계</span>
                   <span>•</span>
-                  <span>약 {Math.ceil(scenario.steps.length * 1.5)}분</span>
+                  <span>약 {Math.ceil(scenario.steps * 1.5)}분</span>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
-
-      {/* 오버레이(투어) 진행 시 전체 오버레이만 표시 */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50">
-          {/* TutorialOverlay는 글로벌하게 렌더링되므로 별도 표시 불필요 */}
-        </div>
-      )}
     </Layout>
   );
 };

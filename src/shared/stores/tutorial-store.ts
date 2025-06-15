@@ -1,12 +1,15 @@
-import { create } from 'zustand';
+import { create, StateCreator } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+export type TutorialAction = 'click' | 'wait';
 
 export interface TutorialStep {
   target: string;
   title: string;
   content: string;
-  placement?: 'top' | 'bottom' | 'left' | 'right';
-  action?: 'click' | 'navigate' | 'wait';
-  actionData?: string | Record<string, unknown>;
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'auto';
+  action?: TutorialAction;
+  actionData?: string;
 }
 
 export interface TutorialScenario {
@@ -18,15 +21,15 @@ export interface TutorialScenario {
 
 interface TutorialState {
   isOpen: boolean;
-  currentScenario: string | null;
+  currentScenario: TutorialScenario | null;
   currentStepIndex: number;
   scenarios: TutorialScenario[];
   openTutorial: (scenarioId: string) => void;
   closeTutorial: () => void;
   nextStep: () => void;
   prevStep: () => void;
-  goToStep: (stepIndex: number) => void;
-  getCurrentStep: () => TutorialStep | null;
+  serviceCreateFormOpen: boolean;
+  setServiceCreateFormOpen: (open: boolean) => void;
 }
 
 const tutorialScenarios: TutorialScenario[] = [
@@ -36,51 +39,37 @@ const tutorialScenarios: TutorialScenario[] = [
     description: '서비스 생성부터 삭제까지 전체 생명주기를 관리하는 방법을 학습합니다.',
     steps: [
       {
-        target: 'services-page',
-        title: '서비스 페이지',
-        content: '서비스 관리 페이지로 이동하여 Docker 서비스들을 관리할 수 있습니다.',
+        target: '[data-tour="sidebar-services"]',
+        title: '서비스 관리로 이동',
+        content: '좌측 사이드바에서 "서비스" 메뉴를 클릭하세요!',
+        placement: 'right',
+        action: 'click',
+      },
+      {
+        target: '[data-tour="create-service-button"]',
+        title: '서비스 생성 버튼',
+        content: '이 버튼을 클릭하면 새 서비스를 생성하기 위한 폼이 열립니다. 실제 서비스를 생성하지는 않고 기능만 설명합니다.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/services'
       },
       {
-        target: 'create-service-button',
-        title: '서비스 생성 시작',
-        content: '새로운 서비스를 생성하려면 이 버튼을 클릭하세요. 서비스 생성 폼이 나타납니다.',
-        placement: 'left',
-        action: 'click'
+        target: '[data-tour="service-list"]',
+        title: '서비스 목록',
+        content: '생성된 서비스들이 이 목록에 표시됩니다. 서비스의 상태와 기본 정보를 확인할 수 있습니다.',
+        placement: 'bottom',
       },
       {
-        target: 'service-name-input',
-        title: '서비스 이름 설정',
-        content: '서비스 이름을 입력하세요. 예를 들어 "my-nginx-web"과 같이 입력할 수 있습니다.',
-        placement: 'right'
-      },
-      {
-        target: 'submit-service-button',
-        title: '서비스 생성 완료',
-        content: '모든 설정이 완료되면 이 버튼을 클릭하여 서비스를 생성할 수 있습니다.',
-        placement: 'top'
-      },
-      {
-        target: 'service-list',
-        title: '서비스 확인',
-        content: '생성된 서비스가 목록에 나타나고, 상태를 확인할 수 있습니다.',
-        placement: 'top'
-      },
-      {
-        target: 'service-list',
+        target: '[data-tour="scale-up-button"]',
         title: '서비스 스케일링',
-        content: '서비스의 레플리카 수를 조정하여 확장하거나 축소할 수 있습니다. + 또는 - 버튼을 사용하세요.',
-        placement: 'left'
+        content: '이 버튼을 클릭하면 서비스의 레플리카 수를 조정할 수 있습니다. 서비스 확장이나 축소가 필요할 때 사용합니다.',
+        placement: 'bottom',
       },
       {
-        target: 'service-list',
-        title: '서비스 관리',
-        content: '서비스를 업데이트하거나 삭제할 수 있습니다. 관리 버튼을 통해 세부 설정에 접근할 수 있습니다.',
-        placement: 'top'
-      }
-    ]
+        target: '[data-tour="service-list"]',
+        title: '서비스 관리(업데이트/삭제)',
+        content: '서비스를 선택하면 세부 설정을 변경하거나 서비스를 삭제할 수 있는 옵션이 제공됩니다.',
+        placement: 'bottom',
+      },
+    ],
   },
   {
     id: 'cluster-monitoring',
@@ -88,46 +77,44 @@ const tutorialScenarios: TutorialScenario[] = [
     description: '클러스터 전체 상태와 개별 노드의 상태를 모니터링하는 방법을 학습합니다.',
     steps: [
       {
-        target: 'cluster-page',
-        title: '클러스터 페이지',
-        content: '클러스터 관리 페이지로 이동하여 전체 클러스터 상태를 확인할 수 있습니다.',
+        target: '[data-tour="sidebar-cluster"]',
+        title: '클러스터 관리로 이동',
+        content: '좌측 사이드바에서 "클러스터" 메뉴를 클릭하세요!',
+        placement: 'right',
+        action: 'click',
+      },
+      {
+        target: '[data-tour="cluster-status"]',
+        title: '클러스터 상태 정보 확인',
+        content: '클러스터의 전체 상태 정보를 확인하세요.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/cluster'
       },
       {
-        target: 'cluster-status',
-        title: '클러스터 상태',
-        content: '클러스터의 전반적인 상태와 기본 정보를 확인할 수 있습니다.',
-        placement: 'bottom'
-      },
-      {
-        target: 'nodes-list',
-        title: '노드 목록',
-        content: '클러스터를 구성하는 모든 노드들의 상태를 한눈에 볼 수 있습니다.',
-        placement: 'top'
-      },
-      {
-        target: 'node-details',
-        title: '노드 상세 정보',
-        content: '각 노드의 역할, 상태, 가용성 등 자세한 정보를 확인할 수 있습니다.',
-        placement: 'left'
-      },
-      {
-        target: 'dashboard-page',
-        title: '대시보드',
-        content: '대시보드에서 시스템 전체의 리소스 사용량을 실시간으로 모니터링할 수 있습니다.',
+        target: '[data-tour="nodes-list"]',
+        title: '노드 목록 확인',
+        content: '클러스터에 속한 노드들의 목록을 확인할 수 있습니다.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/'
       },
       {
-        target: 'system-resources',
-        title: '시스템 리소스',
-        content: 'CPU, 메모리, 디스크 사용량을 실시간으로 추적할 수 있습니다.',
-        placement: 'bottom'
-      }
-    ]
+        target: '[data-tour="node-details"]',
+        title: '노드 상세 정보 확인',
+        content: '각 노드의 상세 정보를 확인할 수 있습니다.',
+        placement: 'bottom',
+      },
+      {
+        target: '[data-tour="simulate-failure"]',
+        title: '노드 시뮬레이션',
+        content: '노드 장애 상황을 시뮬레이션하여 테스트할 수 있습니다.',
+        placement: 'bottom',
+      },
+      {
+        target: '[data-tour="node-drain"]',
+        title: '노드 드레인 기능',
+        content: '노드 드레인 기능을 사용하여 서비스를 다른 노드로 안전하게 이동할 수 있습니다.',
+        placement: 'bottom',
+
+      },
+    ],
   },
   {
     id: 'failure-handling',
@@ -135,40 +122,39 @@ const tutorialScenarios: TutorialScenario[] = [
     description: '시스템 장애 상황을 시뮬레이션하고 대응하는 방법을 학습합니다.',
     steps: [
       {
-        target: 'cluster-page',
-        title: '클러스터 관리',
-        content: '장애 대응을 위해 클러스터 페이지로 이동합니다.',
+        target: '[data-tour="sidebar-cluster"]',
+        title: '클러스터 관리로 이동',
+        content: '좌측 사이드바에서 "클러스터" 메뉴를 클릭하세요!',
+        placement: 'right',
+        action: 'click',
+      },
+      {
+        target: '[data-tour="simulate-failure"]',
+        title: '노드 장애 시뮬레이션',
+        content: '특정 노드에 장애 시뮬레이션을 실행합니다.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/cluster'
+        action: 'click',
       },
       {
-        target: 'simulate-failure',
-        title: '장애 시뮬레이션',
-        content: '특정 노드에 장애를 시뮬레이션하여 시스템의 복원력을 테스트할 수 있습니다.',
-        placement: 'top'
-      },
-      {
-        target: 'node-drain',
-        title: '노드 드레인',
-        content: '유지보수나 장애 대응을 위해 노드에서 모든 서비스를 안전하게 이동시킬 수 있습니다.',
-        placement: 'left'
-      },
-      {
-        target: 'services-page',
-        title: '서비스 상태 확인',
-        content: '서비스 페이지에서 장애 발생 후 서비스들의 상태 변화를 관찰할 수 있습니다.',
+        target: '[data-tour="node-drain"]',
+        title: '노드 드레인(서비스 안전 이동)',
+        content: '드레인 버튼을 눌러 서비스가 안전하게 이동하도록 합니다.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/services'
+        action: 'click',
       },
       {
-        target: 'service-list',
-        title: '서비스 복구 확인',
-        content: '장애 처리 후 서비스들이 정상적으로 복구되었는지 확인할 수 있습니다.',
-        placement: 'top'
-      }
-    ]
+        target: '[data-tour="node-details"]',
+        title: '서비스 상태 변화 확인',
+        content: '노드 및 서비스의 상태 변화를 확인하세요.',
+        placement: 'bottom',
+      },
+      {
+        target: '[data-tour="node-details"]',
+        title: '서비스 복구 상태 확인',
+        content: '서비스가 정상적으로 복구되는지 확인합니다.',
+        placement: 'bottom',
+      },
+    ],
   },
   {
     id: 'scale-up',
@@ -176,96 +162,62 @@ const tutorialScenarios: TutorialScenario[] = [
     description: '서비스의 레플리카 수를 조정하여 확장하는 방법을 학습합니다.',
     steps: [
       {
-        target: 'services-page',
-        title: '서비스 페이지',
-        content: '서비스 관리 페이지로 이동하여 Docker 서비스들을 관리할 수 있습니다.',
+        target: '[data-tour="sidebar-services"]',
+        title: '서비스 관리로 이동',
+        content: '좌측 사이드바에서 "서비스" 메뉴를 클릭하세요!',
+        placement: 'right',
+        action: 'click',
+      },
+      {
+        target: '[data-tour="scale-up-button"]',
+        title: '스케일업 버튼 클릭',
+        content: '스케일업(레플리카 수 증가) 버튼을 클릭합니다.',
         placement: 'bottom',
-        action: 'navigate',
-        actionData: '/services'
+        action: 'click',
       },
       {
-        target: 'service-list',
-        title: '서비스 선택',
-        content: '스케일업할 서비스를 선택하세요.',
-        placement: 'top'
+        target: '[data-tour="replica-input"]',
+        title: '스케일업 결과 확인',
+        content: '레플리카 수가 증가한 것을 확인하세요.',
+        placement: 'bottom',
       },
       {
-        target: 'scale-up-button',
-        title: '스케일업 시작',
-        content: '스케일업 버튼을 클릭하여 레플리카 수를 조정할 수 있습니다.',
-        placement: 'left',
-        action: 'click'
-      },
-      {
-        target: 'confirm-scale-up',
+        target: '[data-tour="confirm-scale-up"]',
         title: '스케일업 완료',
-        content: '스케일업이 완료되었는지 확인하세요.',
-        placement: 'top'
-      }
-    ]
-  }
+        content: '스케일업이 정상적으로 완료되었습니다.',
+        placement: 'bottom',
+      },
+    ],
+  },
 ];
 
-export const useTutorialStore = create<TutorialState>((set, get) => ({
+const tutorialStoreImpl: StateCreator<TutorialState> = (set, get) => ({
   isOpen: false,
   currentScenario: null,
   currentStepIndex: 0,
   scenarios: tutorialScenarios,
-  
-  openTutorial: (scenarioId: string) => {
-    set({
-      isOpen: true,
-      currentScenario: scenarioId,
-      currentStepIndex: 0
-    });
+  openTutorial: (scenarioId) => {
+    const scenario = get().scenarios.find((s) => s.id === scenarioId) || null;
+    set({ isOpen: true, currentScenario: scenario, currentStepIndex: 0 });
   },
-  
-  closeTutorial: () => {
-    set({
-      isOpen: false,
-      currentScenario: null,
-      currentStepIndex: 0
-    });
-  },
-  
+  closeTutorial: () => set({ isOpen: false, currentScenario: null, currentStepIndex: 0, serviceCreateFormOpen: false }),
   nextStep: () => {
-    const { currentScenario, currentStepIndex, scenarios } = get();
+    const { currentScenario, currentStepIndex } = get();
     if (!currentScenario) return;
-    
-    const scenario = scenarios.find(s => s.id === currentScenario);
-    if (!scenario) return;
-    
-    if (currentStepIndex < scenario.steps.length - 1) {
+    if (currentStepIndex < currentScenario.steps.length - 1) {
       set({ currentStepIndex: currentStepIndex + 1 });
     } else {
-      get().closeTutorial();
+      set({ isOpen: false, currentScenario: null, currentStepIndex: 0, serviceCreateFormOpen: false });
     }
   },
-  
   prevStep: () => {
     const { currentStepIndex } = get();
     if (currentStepIndex > 0) {
       set({ currentStepIndex: currentStepIndex - 1 });
     }
   },
-  
-  goToStep: (stepIndex: number) => {
-    const { currentScenario, scenarios } = get();
-    if (!currentScenario) return;
-    
-    const scenario = scenarios.find(s => s.id === currentScenario);
-    if (!scenario) return;
-    
-    if (stepIndex >= 0 && stepIndex < scenario.steps.length) {
-      set({ currentStepIndex: stepIndex });
-    }
-  },
-  
-  getCurrentStep: (): TutorialStep | null => {
-    const { currentScenario, currentStepIndex, scenarios } = get();
-    if (!currentScenario) return null;
-    
-    const scenario = scenarios.find(s => s.id === currentScenario);
-    return scenario?.steps[currentStepIndex] || null;
-  }
-})); 
+  serviceCreateFormOpen: false,
+  setServiceCreateFormOpen: (open) => set({ serviceCreateFormOpen: open }),
+});
+
+export const useTutorialStore = create<TutorialState>()(devtools(tutorialStoreImpl, { name: 'tutorial-store' }));

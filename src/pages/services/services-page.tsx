@@ -2,25 +2,26 @@ import { Button } from '@/components/ui/button';
 import { servicesApi, useServices } from '@/shared/api';
 import { CreateServiceRequest, Service } from '@/shared/api/services';
 import { useToastContext } from '@/shared/contexts';
+import { useTutorialStore } from '@/shared/stores/tutorial-store';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    AlertTriangle,
-    Container,
-    Database,
-    Globe,
-    Minus,
-    Monitor,
-    Network,
-    Play,
-    Plus,
-    RefreshCw,
-    Server,
-    Settings,
-    Square,
-    Trash2,
-    Zap
+  AlertTriangle,
+  Container,
+  Database,
+  Globe,
+  Minus,
+  Monitor,
+  Network,
+  Play,
+  Plus,
+  RefreshCw,
+  Server,
+  Settings,
+  Square,
+  Trash2,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +30,8 @@ export const ServicesPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showSuccess, showError, showWarning } = useToastContext();
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const serviceCreateFormOpen = useTutorialStore((s) => s.serviceCreateFormOpen);
+  const setServiceCreateFormOpen = useTutorialStore((s) => s.setServiceCreateFormOpen);
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceImage, setNewServiceImage] = useState('nginx:latest');
 
@@ -46,7 +48,7 @@ export const ServicesPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       showSuccess('서비스가 성공적으로 생성되었습니다.');
-      setShowCreateForm(false);
+      setServiceCreateFormOpen(false);
       setNewServiceName('');
       setNewServiceImage('nginx:latest');
     },
@@ -211,7 +213,7 @@ export const ServicesPage = () => {
               새로고침
             </Button>
             <Button 
-              onClick={() => setShowCreateForm(!showCreateForm)}
+              onClick={() => setServiceCreateFormOpen(!serviceCreateFormOpen)}
               className="flex items-center gap-2"
               data-tour="create-service-button"
             >
@@ -222,7 +224,7 @@ export const ServicesPage = () => {
         </div>
 
         {/* 서비스 생성 폼 */}
-        {showCreateForm && (
+        {serviceCreateFormOpen && (
           <Card className="p-6" data-tour="service-create-form">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5" />
@@ -289,25 +291,19 @@ export const ServicesPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 mt-6">
-              <Button 
-                onClick={handleCreateService}
-                disabled={createServiceMutation.isPending}
-                className="flex items-center gap-2"
-                data-tour="submit-service-button"
-              >
-                {createServiceMutation.isPending ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                생성
-              </Button>
-              <Button 
-                onClick={() => setShowCreateForm(false)}
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
                 variant="outline"
+                onClick={() => setServiceCreateFormOpen(false)}
               >
                 취소
+              </Button>
+              <Button
+                onClick={handleCreateService}
+                data-tour="submit-service-button"
+                disabled={createServiceMutation.isPending}
+              >
+                {createServiceMutation.isPending ? '생성 중...' : '생성'}
               </Button>
             </div>
           </Card>
@@ -419,6 +415,12 @@ export const ServicesPage = () => {
                         >
                           {service.replicas || 1}
                         </span>
+                        <span
+                          className="sr-only"
+                          data-tour="confirm-scale-up"
+                        >
+                          스케일업 완료 튜토리얼 타겟
+                        </span>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -487,7 +489,7 @@ export const ServicesPage = () => {
                 첫 번째 서비스를 생성하여 애플리케이션을 배포해보세요.
               </p>
               <Button 
-                onClick={() => setShowCreateForm(true)}
+                onClick={() => setServiceCreateFormOpen(true)}
                 className="flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
