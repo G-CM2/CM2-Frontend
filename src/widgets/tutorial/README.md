@@ -9,7 +9,6 @@ tutorial/
 ├── ui/                     # UI 컴포넌트들
 │   ├── tutorial-widget.tsx    # 메인 위젯 컴포넌트
 │   ├── tutorial-overlay.tsx   # 튜토리얼 오버레이 (단계별 가이드)
-│   └── tutorial-menu.tsx      # 튜토리얼 선택 메뉴
 ├── index.ts               # Public exports
 └── README.md
 ```
@@ -23,9 +22,9 @@ tutorial/
 ## 🔧 주요 기능
 
 ### 1. 플로팅 도움말 버튼
-- 화면 우하단에 고정된 `?` 버튼
-- 클릭시 튜토리얼 메뉴 표시
-- 튜토리얼 진행 중에는 숨김
+- (기존) 화면 우하단에 고정된 `?` 버튼 → **튜토리얼 메뉴(모달)는 더 이상 제공하지 않음**
+- 튜토리얼 진입은 사이드바의 "튜토리얼" 메뉴 클릭 시 `/tutorial` 페이지로 이동하여 시작
+- 튜토리얼 진행 중에는 오버레이만 표시
 
 ### 2. 튜토리얼 시나리오
 **서비스 생명주기 관리**
@@ -68,6 +67,10 @@ interface TutorialState {
 <button data-tour="create-service-button">서비스 생성</button>
 <div data-tour="services-list">서비스 목록</div>
 ```
+
+## 변경 이력 및 규칙
+- 2024-06: 튜토리얼 메뉴(모달) 및 관련 파일 제거, 진입 방식은 페이지(`/tutorial`)로만 통일
+- 튜토리얼 위젯은 오버레이만 담당하며, 메뉴/모달은 제공하지 않음
 
 ## 🎮 사용자 인터랙션
 
