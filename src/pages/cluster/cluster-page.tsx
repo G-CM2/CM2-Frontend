@@ -155,7 +155,7 @@ export const ClusterPage = () => {
 
   return (
     <Layout>
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6" data-tour="cluster-page" tabIndex={0}>
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div>
@@ -176,7 +176,7 @@ export const ClusterPage = () => {
 
         {/* 클러스터 헬스 개요 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
+          <Card className="p-6" data-tour="cluster-status" tabIndex={0}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">총 노드</p>
@@ -239,7 +239,7 @@ export const ClusterPage = () => {
         )}
 
         {/* 노드 목록 */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden" data-tour="nodes-list" tabIndex={0}>
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold">클러스터 노드</h3>
           </div>
@@ -279,6 +279,8 @@ export const ClusterPage = () => {
                     <div className="flex items-center gap-2">
                       {node.availability === 'Active' && (
                         <Button
+                          data-tour="node-drain"
+                          tabIndex={0}
                           size="sm"
                           variant="outline"
                           onClick={() => handleNodeAction(node.id, 'drain')}
@@ -300,6 +302,8 @@ export const ClusterPage = () => {
                       )}
 
                       <Button
+                        data-tour="simulate-failure"
+                        tabIndex={0}
                         size="sm"
                         variant="outline"
                         onClick={() => handleNodeAction(node.id, 'simulate-drain')}
@@ -309,6 +313,8 @@ export const ClusterPage = () => {
                       </Button>
 
                       <Button
+                        data-tour="node-details"
+                        tabIndex={0}
                         size="sm"
                         variant="outline"
                         onClick={() => handleNodeAction(node.id, 'inspect')}

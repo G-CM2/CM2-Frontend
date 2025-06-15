@@ -8,6 +8,7 @@
 - `containers/` - 컨테이너 관련 페이지들
 - `services/` - 서비스 관리 페이지
 - `cluster/` - 클러스터 관리 페이지
+- `tutorial/` - 대시보드 튜토리얼 및 가이드
 - `README.md` - 이 파일
 
 ## 페이지 역할
@@ -37,6 +38,10 @@
   - 정상 상태: 모든 노드 ready
   - 장애 상황: down/unknown 노드에 대한 알림 및 복구 가이드
 
+### 튜토리얼 (`/tutorial`)
+- **목적**: 대시보드 구조, 주요 기능, 사용법, 장애 복구 등 단계별 가이드 및 FAQ 제공
+- **기능**: 신규 사용자 온보딩, 주요 시나리오 안내, 자주 묻는 질문
+
 ## 라우팅 구조
 
 ```
@@ -46,6 +51,7 @@
 /containers/:containerId → ContainerDetailsPage
 /services → ServicesPage
 /cluster → ClusterPage
+/tutorial → TutorialPage
 ```
 
 ## 공통 패턴
@@ -74,6 +80,7 @@ import { DashboardPage } from '@/pages/dashboard';
 import { ContainerListPage, ContainerDetailsPage } from '@/pages/containers';
 import { ServicesPage } from '@/pages/services';
 import { ClusterPage } from '@/pages/cluster';
+import { TutorialPage } from '@/pages/tutorial';
 
 // 라우터 설정에서 사용
 <Routes>
@@ -82,6 +89,7 @@ import { ClusterPage } from '@/pages/cluster';
   <Route path="/containers/:containerId" element={<ContainerDetailsPage />} />
   <Route path="/services" element={<ServicesPage />} />
   <Route path="/cluster" element={<ClusterPage />} />
+  <Route path="/tutorial" element={<TutorialPage />} />
 </Routes>
 ```
 

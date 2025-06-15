@@ -213,6 +213,7 @@ export const ServicesPage = () => {
             <Button 
               onClick={() => setShowCreateForm(!showCreateForm)}
               className="flex items-center gap-2"
+              data-tour="create-service-button"
             >
               <Plus className="w-4 h-4" />
               서비스 생성
@@ -222,7 +223,7 @@ export const ServicesPage = () => {
 
         {/* 서비스 생성 폼 */}
         {showCreateForm && (
-          <Card className="p-6">
+          <Card className="p-6" data-tour="service-create-form">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5" />
               새 서비스 생성
@@ -241,6 +242,7 @@ export const ServicesPage = () => {
                     onChange={(e) => setNewServiceName(e.target.value)}
                     placeholder="예: my-web-service"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    data-tour="service-name-input"
                   />
                 </div>
                 
@@ -292,6 +294,7 @@ export const ServicesPage = () => {
                 onClick={handleCreateService}
                 disabled={createServiceMutation.isPending}
                 className="flex items-center gap-2"
+                data-tour="submit-service-button"
               >
                 {createServiceMutation.isPending ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -362,7 +365,7 @@ export const ServicesPage = () => {
         </div>
 
         {/* 서비스 목록 */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden" data-tour="service-list" tabIndex={0}>
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold">서비스 목록</h3>
           </div>
@@ -409,7 +412,11 @@ export const ServicesPage = () => {
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
-                        <span className="px-2 text-sm font-medium min-w-[2rem] text-center">
+                        <span
+                          className="px-2 text-sm font-medium min-w-[2rem] text-center"
+                          data-tour="replica-input"
+                          tabIndex={0}
+                        >
                           {service.replicas || 1}
                         </span>
                         <Button
@@ -418,6 +425,8 @@ export const ServicesPage = () => {
                           onClick={() => handleScaleService(service.id, service.replicas || 1, 'up')}
                           disabled={scaleServiceMutation.isPending}
                           className="h-8 w-8 p-0"
+                          data-tour="scale-up-button"
+                          tabIndex={0}
                         >
                           <Plus className="w-4 h-4" />
                         </Button>

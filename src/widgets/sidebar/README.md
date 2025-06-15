@@ -18,6 +18,7 @@
 - **컨테이너** (`/containers`) - 컨테이너 목록 및 상세 관리
 - **서비스** (`/services`) - Docker Swarm 서비스 생성/관리/스케일링
 - **클러스터** (`/cluster`) - 클러스터 노드 상태 및 관리
+- **튜토리얼** (`/tutorial`) - 대시보드 사용법, 단계별 가이드, FAQ 안내
 
 #### UI 구성요소
 - 브랜드 헤더 (CM2 Dashboard)
@@ -29,33 +30,8 @@
 - 컨테이너: `Container`
 - 서비스: `Server`
 - 클러스터: `Layers`
+- 튜토리얼: `HelpCircle`
 
 ## 사용법
 
-```tsx
-import { Sidebar } from '@/widgets/sidebar';
-
-export const Layout = ({ children }) => {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
-  );
-};
 ```
-
-## 네비게이션 로직
-
-- `useLocation` 훅을 사용하여 현재 경로 감지
-- 활성 메뉴 항목에 대한 시각적 피드백 제공
-- 루트 경로(`/`)는 대시보드로 리다이렉트
-
-## 스타일링
-
-- Tailwind CSS를 사용한 반응형 디자인
-- 활성 상태: 파란색 배경과 테두리
-- 호버 효과: 회색 배경 전환
-- 고정 너비 (w-64) 사이드바 

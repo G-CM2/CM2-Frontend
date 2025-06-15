@@ -3,6 +3,8 @@ import { ContainerListPage } from '@/pages/containers';
 import { ContainerDetailsPage } from '@/pages/containers/container-details';
 import { DashboardPage } from '@/pages/dashboard';
 import { ServiceDetailsPage, ServicesPage } from '@/pages/services';
+import { TutorialPage } from '@/pages/tutorial';
+import { TutorialWidget } from '@/widgets/tutorial';
 
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Providers } from './providers';
@@ -20,8 +22,10 @@ export const App = () => {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/:serviceId" element={<ServiceDetailsPage />} />
             <Route path="/cluster" element={<ClusterPage />} />
+            <Route path="/tutorial" element={<TutorialPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <TutorialWidget />
         </BrowserRouter>
       </Providers>
     </div>

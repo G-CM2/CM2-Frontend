@@ -210,7 +210,7 @@ export const DashboardPage = () => {
 
   return (
     <Layout>
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6" data-tour="dashboard-page">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div>
@@ -286,7 +286,7 @@ export const DashboardPage = () => {
 
         {/* 시스템 리소스 */}
         {systemSummary && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-tour="system-resources">
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">CPU 사용률</h3>
