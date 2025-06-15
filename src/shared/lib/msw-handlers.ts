@@ -1,12 +1,12 @@
 import type { Container, ContainerDetails } from '@/entities/container/types';
 import { http, HttpResponse } from 'msw';
 import type {
-  ClusterHealth,
-  ClusterNode,
-  ClusterNodesResponse,
-  ClusterStatus,
-  SimulateFailureRequest,
-  SimulateFailureResponse
+    ClusterHealth,
+    ClusterNode,
+    ClusterNodesResponse,
+    ClusterStatus,
+    SimulateFailureRequest,
+    SimulateFailureResponse
 } from '../api/cluster';
 import type { Service, SystemSummary } from '../api/services';
 
@@ -219,11 +219,12 @@ function generateServiceResources(serviceName: string, image: string): { cpu_usa
   
   // 시간대 및 스파이크 계수 적용
   const finalCpu = Math.min(85, baseCpu * timeMultiplier * spikeMultiplier);
-  const finalMemory = Math.min(1000, baseMemory * timeMultiplier * spikeMultiplier);
-  
+  // 메모리 사용량을 0~100%로 보정
+  const finalMemoryPercent = Math.min(100, (baseMemory * timeMultiplier * spikeMultiplier) / 10); // 1000MB=100% 가정
+
   return {
     cpu_usage: Math.round(finalCpu * 10) / 10, // 소수점 1자리
-    memory_usage: Math.round(finalMemory)
+    memory_usage: Math.round(finalMemoryPercent * 10) / 10 // 소수점 1자리, 0~100%
   };
 }
 
@@ -561,7 +562,16 @@ export const handlers = [
   // 컨테이너 목록 조회 (GET /containers)
   http.get('http://localhost:8080/containers', () => {
     initializeData();
-    const containers = Storage.get<Container[]>('CONTAINERS', []);
+    let containers = Storage.get<Container[]>('CONTAINERS', []);
+    // 각 컨테이너에 대해 cpu_usage, memory_usage를 매번 랜덤 생성
+    containers = containers.map(container => {
+      const { cpu_usage, memory_usage } = generateServiceResources(container.name, container.image);
+      return {
+        ...container,
+        cpu_usage,
+        memory_usage
+      };
+    });
     return HttpResponse.json(containers);
   }),
 
@@ -571,12 +581,11 @@ export const handlers = [
     const { containerId } = params;
     const containers = Storage.get<Container[]>('CONTAINERS', []);
     const container = containers.find(c => c.id === containerId);
-    
     if (!container) {
       return new HttpResponse(null, { status: 404 });
     }
-    
-    // 명세서에 맞는 상세 정보 응답
+    // 매번 랜덤 리소스 생성
+    const { cpu_usage, memory_usage } = generateServiceResources(container.name, container.image);
     const containerDetails: ContainerDetails = {
       id: container.id,
       name: container.name,
@@ -584,8 +593,8 @@ export const handlers = [
       status: container.status,
       created_at: container.created,
       health: 'healthy',
-      cpu_usage: container.cpu_usage,
-      memory_usage: container.memory_usage,
+      cpu_usage,
+      memory_usage,
       restart_count: 0,
       ports: [
         { internal: 80, external: 8080 }
@@ -598,7 +607,6 @@ export const handlers = [
       ],
       logs: '2024-01-01T00:00:00Z INFO: Container started\n2024-01-01T00:01:00Z INFO: Service ready',
     };
-    
     return HttpResponse.json(containerDetails);
   }),
 
