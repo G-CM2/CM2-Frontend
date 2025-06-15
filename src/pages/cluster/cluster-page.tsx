@@ -1,23 +1,22 @@
 import { Button } from '@/components/ui/button';
 import {
-    useClusterHealth,
-    useClusterNodes,
-    useClusterStatus,
-    useDrainNode,
-    useSimulateFailure
+  useClusterHealth,
+  useClusterNodes,
+  useClusterStatus,
+  useDrainNode,
+  useSimulateFailure
 } from '@/shared/api/hooks/use-cluster';
 import { useToastContext } from '@/shared/contexts';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import {
-    AlertTriangle,
-    CheckCircle,
-    Crown,
-    Layers,
-    Monitor,
-    RefreshCw,
-    Server,
-    WifiOff
+  AlertTriangle,
+  CheckCircle,
+  Crown,
+  Layers,
+  RefreshCw,
+  Server,
+  WifiOff
 } from 'lucide-react';
 
 export const ClusterPage = () => {
@@ -312,17 +311,6 @@ export const ClusterPage = () => {
                         시뮬레이션
                       </Button>
 
-                      <Button
-                        data-tour="node-details"
-                        tabIndex={0}
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleNodeAction(node.id, 'inspect')}
-                        className="flex items-center gap-2"
-                      >
-                        <Monitor className="w-4 h-4" />
-                        상세보기
-                      </Button>
                     </div>
                   </div>
 

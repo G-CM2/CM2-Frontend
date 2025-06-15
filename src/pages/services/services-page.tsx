@@ -191,7 +191,7 @@ export const ServicesPage = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6" data-tour="services-page" tabIndex={0}>
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div>
