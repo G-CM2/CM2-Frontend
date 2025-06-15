@@ -14,9 +14,12 @@ import {
 import {
     useCreateService,
     useDeleteService,
+    useRollingUpdates,
+    useRollingUpdateState,
     useScaleService,
     useService,
     useServices,
+    useStartRollingUpdate,
     useUpdateService
 } from './use-services';
 
@@ -40,9 +43,12 @@ export {
 export {
     SERVICES_QUERY_KEYS, useCreateService,
     useDeleteService,
+    useRollingUpdates,
+    useRollingUpdateState,
     useScaleService,
     useService,
     useServices,
+    useStartRollingUpdate,
     useUpdateService
 } from './use-services';
 
@@ -68,5 +74,8 @@ export const hooks = {
   useCreateService,
   useUpdateService,
   useScaleService,
-  useDeleteService
+  useDeleteService,
+  useStartRollingUpdate,
+  useRollingUpdateState,
+  useRollingUpdates
 }; 

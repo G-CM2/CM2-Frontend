@@ -81,6 +81,52 @@ function initializeData() {
         networks: ['default'],
         mode: 'replicated',
       },
+      {
+        id: 'srv-3',
+        name: 'postgres-db',
+        image: 'postgres:15',
+        replicas: 1,
+        status: 'running',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        ports: [
+          { internal: 5432, external: 5432 }
+        ],
+        cpu_usage: 35.7,
+        memory_usage: 512,
+        networks: ['default'],
+        mode: 'replicated',
+      },
+      {
+        id: 'srv-4',
+        name: 'node-api',
+        image: 'node:18-alpine',
+        replicas: 2,
+        status: 'running',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        ports: [
+          { internal: 3000, external: 3000 }
+        ],
+        cpu_usage: 22.1,
+        memory_usage: 384,
+        networks: ['default'],
+        mode: 'replicated',
+      },
+      {
+        id: 'srv-5',
+        name: 'python-worker',
+        image: 'python:3.11-slim',
+        replicas: 1,
+        status: 'running',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        ports: [],
+        cpu_usage: 18.9,
+        memory_usage: 298,
+        networks: ['default'],
+        mode: 'replicated',
+      },
     ];
     Storage.set('SERVICES', initialServices);
   }
@@ -131,6 +177,56 @@ function getRandomizedValue(baseValue: number, variationPercent: number = 10): n
   return Math.max(0, Math.min(100, result)); // 0~100% 범위로 제한
 }
 
+// 서비스별 리소스 사용량 생성 함수
+function generateServiceResources(serviceName: string, image: string): { cpu_usage: number; memory_usage: number } {
+  const currentHour = new Date().getHours();
+  
+  // 시간대별 부하 계수 (업무시간에 높은 부하)
+  const timeMultiplier = currentHour >= 9 && currentHour <= 18 ? 1.3 : 
+                        currentHour >= 2 && currentHour <= 6 ? 0.7 : 1.0;
+  
+  // 5% 확률로 부하 스파이크 발생
+  const spikeMultiplier = Math.random() < 0.05 ? 1.8 : 1.0;
+  
+  let cpuRange: [number, number];
+  let memoryRange: [number, number]; // MB 단위
+  
+  // 서비스 타입별 리소스 사용량 범위 설정
+  if (image.includes('nginx') || serviceName.includes('web')) {
+    cpuRange = [8, 35];
+    memoryRange = [150, 400];
+  } else if (image.includes('redis') || serviceName.includes('cache')) {
+    cpuRange = [12, 50];
+    memoryRange = [100, 300];
+  } else if (image.includes('postgres') || image.includes('mysql') || serviceName.includes('db')) {
+    cpuRange = [15, 70];
+    memoryRange = [200, 800];
+  } else if (image.includes('node') || image.includes('express') || serviceName.includes('api')) {
+    cpuRange = [10, 45];
+    memoryRange = [180, 500];
+  } else if (image.includes('python') || image.includes('django') || image.includes('flask')) {
+    cpuRange = [12, 55];
+    memoryRange = [200, 600];
+  } else {
+    // 기본값
+    cpuRange = [10, 40];
+    memoryRange = [150, 400];
+  }
+  
+  // 기본 랜덤값 생성
+  const baseCpu = cpuRange[0] + Math.random() * (cpuRange[1] - cpuRange[0]);
+  const baseMemory = memoryRange[0] + Math.random() * (memoryRange[1] - memoryRange[0]);
+  
+  // 시간대 및 스파이크 계수 적용
+  const finalCpu = Math.min(85, baseCpu * timeMultiplier * spikeMultiplier);
+  const finalMemory = Math.min(1000, baseMemory * timeMultiplier * spikeMultiplier);
+  
+  return {
+    cpu_usage: Math.round(finalCpu * 10) / 10, // 소수점 1자리
+    memory_usage: Math.round(finalMemory)
+  };
+}
+
 // 시스템 요약 정보 업데이트
 function updateSystemSummary(): SystemSummary {
   const containers = Storage.get<Container[]>('CONTAINERS', []);
@@ -160,6 +256,130 @@ function updateSystemSummary(): SystemSummary {
   };
 
   return summary;
+}
+
+// 롤링 업데이트 상태 추적을 위한 인터페이스
+interface RollingUpdateState {
+  serviceId: string;
+  status: 'starting' | 'in-progress' | 'verifying' | 'completed' | 'failed';
+  currentStep: number;
+  totalSteps: number;
+  steps: Array<{
+    id: number;
+    name: string;
+    status: 'pending' | 'running' | 'completed';
+    message: string;
+    progress?: number;
+  }>;
+  verifyCountdown?: number;
+  startTime: number;
+  targetImage?: string;
+}
+
+// 롤링 업데이트 상태 스토리지
+const rollingUpdateStates = new Map<string, RollingUpdateState>();
+
+// 롤링 업데이트 시뮬레이션 실행
+function simulateRollingUpdate(serviceId: string, targetImage: string) {
+  const updateId = `${serviceId}-${Date.now()}`;
+  
+  const initialState: RollingUpdateState = {
+    serviceId,
+    status: 'starting',
+    currentStep: 0,
+    totalSteps: 5,
+    steps: [
+      { id: 1, name: 'image-pull', status: 'pending', message: '새 이미지 다운로드 중...' },
+      { id: 2, name: 'stop-old', status: 'pending', message: '기존 컨테이너 중지 중...' },
+      { id: 3, name: 'start-new', status: 'pending', message: '새 컨테이너 시작 중...' },
+      { id: 4, name: 'health-check', status: 'pending', message: '헬스체크 수행 중...' },
+      { id: 5, name: 'cleanup', status: 'pending', message: '정리 작업 수행 중...' }
+    ],
+    startTime: Date.now(),
+    targetImage
+  };
+
+  rollingUpdateStates.set(updateId, initialState);
+
+  // 비동기 시뮬레이션 실행
+  setTimeout(async () => {
+    try {
+      const state = rollingUpdateStates.get(updateId);
+      if (!state) return;
+
+      // 단계별 진행
+      for (let i = 0; i < state.steps.length; i++) {
+        const currentState = rollingUpdateStates.get(updateId);
+        if (!currentState) return;
+
+        // 현재 단계 시작
+        currentState.status = 'in-progress';
+        currentState.currentStep = i + 1;
+        currentState.steps[i].status = 'running';
+        rollingUpdateStates.set(updateId, { ...currentState });
+
+        // 단계별 소요 시간 (랜덤)
+        const duration = Math.random() * 3000 + 2000; // 2-5초
+        await new Promise(resolve => setTimeout(resolve, duration));
+
+        // 현재 단계 완료
+        const updatedState = rollingUpdateStates.get(updateId);
+        if (updatedState) {
+          updatedState.steps[i].status = 'completed';
+          rollingUpdateStates.set(updateId, { ...updatedState });
+        }
+      }
+
+      // 검증 단계
+      const finalState = rollingUpdateStates.get(updateId);
+      if (finalState) {
+        finalState.status = 'verifying';
+        finalState.verifyCountdown = 5;
+        rollingUpdateStates.set(updateId, { ...finalState });
+
+        // 5초 카운트다운
+        for (let i = 5; i > 0; i--) {
+          const verifyState = rollingUpdateStates.get(updateId);
+          if (verifyState) {
+            verifyState.verifyCountdown = i;
+            rollingUpdateStates.set(updateId, { ...verifyState });
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        // 완료
+        const completedState = rollingUpdateStates.get(updateId);
+        if (completedState) {
+          completedState.status = 'completed';
+          completedState.verifyCountdown = 0;
+          rollingUpdateStates.set(updateId, { ...completedState });
+
+          // 실제 서비스 이미지 업데이트
+          const services = Storage.get<Service[]>('SERVICES', []);
+          const serviceIndex = services.findIndex(s => s.id === serviceId);
+          if (serviceIndex !== -1) {
+            services[serviceIndex].image = targetImage;
+            services[serviceIndex].updated_at = new Date().toISOString();
+            Storage.set('SERVICES', services);
+          }
+
+          // 30초 후 상태 정리
+          setTimeout(() => {
+            rollingUpdateStates.delete(updateId);
+          }, 30000);
+        }
+      }
+    } catch {
+      // 에러 발생 시 실패 상태로 변경
+      const errorState = rollingUpdateStates.get(updateId);
+      if (errorState) {
+        errorState.status = 'failed';
+        rollingUpdateStates.set(updateId, { ...errorState });
+      }
+    }
+  }, 1000);
+
+  return updateId;
 }
 
 /**
@@ -198,7 +418,25 @@ export const handlers = [
   http.get('http://localhost:8080/services', () => {
     initializeData();
     const services = Storage.get<Service[]>('SERVICES', []);
-    return HttpResponse.json(services);
+    
+    // 각 서비스에 실시간 리소스 사용량 적용 및 롤링 업데이트 상태 반영
+    const servicesWithResources = services.map(service => {
+      const resources = generateServiceResources(service.name, service.image);
+      
+      // 해당 서비스의 진행 중인 롤링 업데이트 확인
+      const ongoingUpdate = Array.from(rollingUpdateStates.values())
+        .find(state => state.serviceId === service.id && 
+          ['starting', 'in-progress', 'verifying'].includes(state.status));
+      
+      return {
+        ...service,
+        cpu_usage: resources.cpu_usage,
+        memory_usage: resources.memory_usage,
+        status: ongoingUpdate ? 'pending' : service.status
+      };
+    });
+    
+    return HttpResponse.json(servicesWithResources);
   }),
 
   // 시스템 요약 정보 조회 (GET /summary)
@@ -219,7 +457,22 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 });
     }
     
-    return HttpResponse.json(service);
+    // 실시간 리소스 사용량 적용 및 롤링 업데이트 상태 반영
+    const resources = generateServiceResources(service.name, service.image);
+    
+    // 해당 서비스의 진행 중인 롤링 업데이트 확인
+    const ongoingUpdate = Array.from(rollingUpdateStates.values())
+      .find(state => state.serviceId === id && 
+        ['starting', 'in-progress', 'verifying'].includes(state.status));
+    
+    const serviceWithResources = {
+      ...service,
+      cpu_usage: resources.cpu_usage,
+      memory_usage: resources.memory_usage,
+      status: ongoingUpdate ? 'pending' : service.status
+    };
+    
+    return HttpResponse.json(serviceWithResources);
   }),
 
   // 서비스 생성 (POST /services)
@@ -423,5 +676,48 @@ export const handlers = [
     };
     
     return HttpResponse.json(response);
+  }),
+
+  // 롤링 업데이트 시작 (POST /services/{id}/rolling-update)
+  http.post('http://localhost:8080/services/:id/rolling-update', async ({ params, request }) => {
+    initializeData();
+    const { id } = params;
+    const data = await request.json() as { image: string };
+    const services = Storage.get<Service[]>('SERVICES', []);
+    const service = services.find(s => s.id === id);
+    
+    if (!service) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    // 롤링 업데이트 시뮬레이션 시작
+    const updateId = simulateRollingUpdate(id as string, data.image);
+    
+    return HttpResponse.json({ 
+      updateId,
+      message: '롤링 업데이트가 시작되었습니다.',
+      serviceId: id
+    });
+  }),
+
+  // 롤링 업데이트 상태 조회 (GET /services/{id}/rolling-update/{updateId})
+  http.get('http://localhost:8080/services/:id/rolling-update/:updateId', ({ params }) => {
+    const { updateId } = params;
+    const state = rollingUpdateStates.get(updateId as string);
+    
+    if (!state) {
+      return new HttpResponse(null, { status: 404 });
+    }
+    
+    return HttpResponse.json(state);
+  }),
+
+  // 롤링 업데이트 목록 조회 (GET /services/{id}/rolling-updates)
+  http.get('http://localhost:8080/services/:id/rolling-updates', ({ params }) => {
+    const { id } = params;
+    const serviceUpdates = Array.from(rollingUpdateStates.values())
+      .filter(state => state.serviceId === id);
+    
+    return HttpResponse.json(serviceUpdates);
   }),
 ];

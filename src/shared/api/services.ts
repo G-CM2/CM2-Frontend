@@ -18,7 +18,7 @@ export interface Service {
   name: string;
   image: string;
   replicas: number;
-  status: 'running' | 'stopped' | 'pending' | 'failed' | 'shutdown';
+  status: ServiceStatus;
   created_at: string;
   updated_at?: string;
   ports: Array<{
@@ -108,6 +108,36 @@ export interface MonitoringResponse {
 }
 
 /**
+ * 롤링 업데이트 관련 인터페이스
+ */
+export interface RollingUpdateRequest {
+  image: string;
+}
+
+export interface RollingUpdateResponse {
+  updateId: string;
+  message: string;
+  serviceId: string;
+}
+
+export interface RollingUpdateState {
+  serviceId: string;
+  status: 'starting' | 'in-progress' | 'verifying' | 'completed' | 'failed';
+  currentStep: number;
+  totalSteps: number;
+  steps: Array<{
+    id: number;
+    name: string;
+    status: 'pending' | 'running' | 'completed';
+    message: string;
+    progress?: number;
+  }>;
+  verifyCountdown?: number;
+  startTime: number;
+  targetImage?: string;
+}
+
+/**
  * 서비스 API 함수들
  */
 export const servicesApi = {
@@ -171,6 +201,30 @@ export const servicesApi = {
    */
   async updateService(id: string, data: UpdateServiceRequest): Promise<Service> {
     const response = await apiClient.post<Service>(`/services/${id}/update`, data);
+    return response.data;
+  },
+
+  /**
+   * 롤링 업데이트 시작
+   */
+  async startRollingUpdate(id: string, data: RollingUpdateRequest): Promise<RollingUpdateResponse> {
+    const response = await apiClient.post<RollingUpdateResponse>(`/services/${id}/rolling-update`, data);
+    return response.data;
+  },
+
+  /**
+   * 롤링 업데이트 상태 조회
+   */
+  async getRollingUpdateState(id: string, updateId: string): Promise<RollingUpdateState> {
+    const response = await apiClient.get<RollingUpdateState>(`/services/${id}/rolling-update/${updateId}`);
+    return response.data;
+  },
+
+  /**
+   * 롤링 업데이트 목록 조회
+   */
+  async getRollingUpdates(id: string): Promise<RollingUpdateState[]> {
+    const response = await apiClient.get<RollingUpdateState[]>(`/services/${id}/rolling-updates`);
     return response.data;
   },
 };

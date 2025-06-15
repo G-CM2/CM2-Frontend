@@ -1,25 +1,25 @@
 import { useDeleteService, useScaleService, useService, useUpdateService } from '@/shared/api';
-import { UpdateServiceRequest } from '@/shared/api/services';
 import { useToastContext } from '@/shared/contexts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui';
 import { Button } from '@/shared/ui/button';
 import { Layout } from '@/widgets/layout';
+import { RollingUpdateModal } from '@/widgets/rolling-update-modal';
 import {
-    AlertTriangle,
-    ArrowLeft,
-    Container,
-    Database,
-    Globe,
-    Minus,
-    Network,
-    Play,
-    Plus,
-    RefreshCw,
-    RotateCcw,
-    Settings,
-    Trash2,
-    Upload,
-    Zap
+  AlertTriangle,
+  ArrowLeft,
+  Container,
+  Database,
+  Globe,
+  Minus,
+  Network,
+  Play,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Settings,
+  Trash2,
+  Upload,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -33,6 +33,7 @@ export const ServiceDetailsPage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [newImage, setNewImage] = useState('');
   const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // API 훅들
   const {
@@ -45,6 +46,8 @@ export const ServiceDetailsPage = () => {
   const scaleServiceMutation = useScaleService();
   const updateServiceMutation = useUpdateService();
   const deleteServiceMutation = useDeleteService();
+
+
 
   // 이미지 업데이트 폼 초기화
   const initializeUpdateForm = () => {
@@ -87,24 +90,22 @@ export const ServiceDetailsPage = () => {
     }
 
     setIsUpdating(true);
+    setShowUpdateForm(false);
+    setShowUpdateModal(true);
+  };
+
+  // 롤링 업데이트 완료 핸들러
+  const handleUpdateComplete = async () => {
     try {
-      showInfo('롤링 업데이트를 시작합니다...');
-      const updateRequest: UpdateServiceRequest = {
-        image: newImage.trim()
-      };
-
-      await updateServiceMutation.mutateAsync({
-        id: service.id,
-        request: updateRequest
-      });
-
       showSuccess('롤링 업데이트가 완료되었습니다.');
-      setShowUpdateForm(false);
       refetch();
     } catch {
       showError('롤링 업데이트 중 오류가 발생했습니다.');
     } finally {
       setIsUpdating(false);
+      setShowUpdateModal(false);
+      setNewImage('');
+      setShowUpdateForm(false);
     }
   };
 
@@ -172,6 +173,22 @@ export const ServiceDetailsPage = () => {
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // 상태 텍스트 가져오기
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'running':
+        return '실행중';
+      case 'pending':
+        return '업데이트중';
+      case 'stopped':
+        return '중지됨';
+      case 'failed':
+        return '실패';
+      default:
+        return status;
     }
   };
 
@@ -262,7 +279,7 @@ export const ServiceDetailsPage = () => {
             <CardContent>
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
-                  {service.status}
+                  {getStatusText(service.status)}
                 </span>
                 <Play className="w-4 h-4 text-green-600" />
               </div>
@@ -386,31 +403,31 @@ export const ServiceDetailsPage = () => {
         <Card>
           <CardHeader>
             <CardTitle>리소스 사용량</CardTitle>
-            <CardDescription>현재 CPU 및 메모리 사용량</CardDescription>
+            <CardDescription>현재 CPU 및 메모리 사용량 (실시간)</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">CPU 사용률</span>
-                  <span className="text-sm text-gray-600">{service.cpu_usage?.toFixed(1) || 0}%</span>
+                  <span className="text-sm text-gray-600">{service?.cpu_usage?.toFixed(1) || '0.0'}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(service.cpu_usage || 0, 100)}%` }}
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min(service?.cpu_usage || 0, 100)}%` }}
                   />
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">메모리 사용량</span>
-                  <span className="text-sm text-gray-600">{service.memory_usage || 0} MB</span>
+                  <span className="text-sm text-gray-600">{service?.memory_usage?.toFixed(0) || '0'} MB</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min((service.memory_usage || 0) / 10, 100)}%` }}
+                    className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((service?.memory_usage || 0) / 10, 100)}%` }}
                   />
                 </div>
               </div>
@@ -512,6 +529,16 @@ export const ServiceDetailsPage = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* 롤링 업데이트 모달 */}
+        <RollingUpdateModal
+          isOpen={showUpdateModal}
+          onClose={() => setShowUpdateModal(false)}
+          serviceName={service.name}
+          serviceId={service.id}
+          targetImage={newImage}
+          onComplete={handleUpdateComplete}
+        />
       </div>
     </Layout>
   );
