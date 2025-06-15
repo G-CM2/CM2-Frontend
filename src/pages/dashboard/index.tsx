@@ -5,23 +5,22 @@ import { useToastContext } from '@/shared/contexts';
 import { Card } from '@/shared/ui/card/card';
 import { Layout } from '@/widgets/layout';
 import {
-  Activity,
-  AlertTriangle,
-  Container,
-  Database,
-  Globe,
-  HardDrive,
-  Layers,
-  Minus,
-  Monitor,
-  Play,
-  Plus,
-  RefreshCw,
-  RotateCcw,
-  Server,
-  Settings,
-  Square,
-  Zap
+    Activity,
+    AlertTriangle,
+    Container,
+    Database,
+    Globe,
+    HardDrive,
+    Layers,
+    Monitor,
+    Play,
+    Plus,
+    RefreshCw,
+    RotateCcw,
+    Server,
+    Settings,
+    Square,
+    Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -420,118 +419,34 @@ export const DashboardPage = () => {
           ) : services && services.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {services.slice(0, 5).map((service) => (
-                <div key={service.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      {getServiceTypeIcon(service.name)}
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-semibold text-gray-900">{service.name}</h4>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getServiceStatusColor(service.status)}`}>
-                            {getServiceStatusIcon(service.status)}
-                            {service.status}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">{service.image}</p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                          <span>레플리카: {service.replicas}</span>
-                          {service.ports && service.ports.length > 0 && (
-                            <span>포트: {service.ports.map(p => `${p.external}:${p.internal}`).join(', ')}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* 스케일링 버튼 */}
-                      <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleServiceAction(service, 'scale-down')}
-                          disabled={(service.replicas || 1) <= 1 || loadingServices[service.id] === 'scale-down'}
-                          className="h-8 w-8 p-0"
-                        >
-                          {loadingServices[service.id] === 'scale-down' ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Minus className="w-4 h-4" />
-                          )}
-                        </Button>
-                        <span className="px-2 text-sm font-medium min-w-[2rem] text-center">
-                          {loadingServices[service.id] === 'scale-up' || loadingServices[service.id] === 'scale-down' ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            service.replicas || 1
-                          )}
+                <div
+                  key={service.id}
+                  className="p-6 hover:bg-blue-50 cursor-pointer transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  tabIndex={0}
+                  onClick={() => navigate(`/services/${service.id}`)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(`/services/${service.id}`); }}
+                  role="button"
+                  aria-label={`${service.name} 서비스 상세보기`}
+                >
+                  <div className="flex items-center gap-4">
+                    {getServiceTypeIcon(service.name)}
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h4 className="font-semibold text-gray-900">{service.name}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getServiceStatusColor(service.status)}`}>
+                          {getServiceStatusIcon(service.status)}
+                          {service.status}
                         </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleServiceAction(service, 'scale-up')}
-                          disabled={loadingServices[service.id] === 'scale-up'}
-                          className="h-8 w-8 p-0"
-                        >
-                          {loadingServices[service.id] === 'scale-up' ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Plus className="w-4 h-4" />
-                          )}
-                        </Button>
                       </div>
-
-                      {/* 액션 버튼 */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleServiceAction(service, 'restart')}
-                        disabled={loadingServices[service.id] === 'restart'}
-                        className="flex items-center gap-2"
-                      >
-                        {loadingServices[service.id] === 'restart' ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-4 h-4" />
+                      <p className="text-sm text-gray-600 mt-1">{service.image}</p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <span>레플리카: {service.replicas}</span>
+                        {service.ports && service.ports.length > 0 && (
+                          <span>포트: {service.ports.map(p => `${p.external}:${p.internal}`).join(', ')}</span>
                         )}
-                        재시작
-                      </Button>
-
-                      {service.status === 'failed' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleServiceAction(service, 'troubleshoot')}
-                          disabled={loadingServices[service.id] === 'troubleshoot'}
-                          className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
-                        >
-                          {loadingServices[service.id] === 'troubleshoot' ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Settings className="w-4 h-4" />
-                          )}
-                          문제 해결
-                        </Button>
-                      )}
-
-                      {service.status === 'running' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleServiceAction(service, 'rolling-update')}
-                          disabled={loadingServices[service.id] === 'rolling-update'}
-                          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                        >
-                          {loadingServices[service.id] === 'rolling-update' ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <RotateCcw className="w-4 h-4" />
-                          )}
-                          업데이트
-                        </Button>
-                      )}
+                      </div>
                     </div>
                   </div>
-
                   {/* 서비스 상태별 추가 정보 */}
                   {service.status === 'failed' && (
                     <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
