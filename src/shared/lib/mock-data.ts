@@ -43,7 +43,7 @@ export const INITIAL_SERVICES: Service[] = [
     name: 'api-server',
     image: 'node:18-alpine',
     replicas: 2,
-    status: 'stopped',
+    status: 'shutdown',
     created_at: '2024-01-15T10:10:00Z',
     updated_at: '2024-01-15T10:10:00Z',
     ports: [
